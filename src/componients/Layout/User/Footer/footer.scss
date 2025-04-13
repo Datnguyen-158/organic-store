@@ -1,0 +1,83 @@
+.footer {
+  margin-top: 80px;
+  background: #3ba66b;
+  padding: 50px;
+  position: relative;
+}
+.receive-info h1 {
+  font-size: 16px;
+  font-weight: bold;
+  color: #fff;
+  text-transform: uppercase;
+}
+.receive-info {
+  padding-top: 120px;
+}
+.receive-info p {
+  color: white;
+  margin: 20px 20px;
+}
+.enter-regis input {
+  width: 80%;
+  height: 40px;
+  border-color: #fff;
+  font-size: 14px;
+  color: #333;
+  padding: 15px 10px;
+  border-radius: 25px !important;
+  margin-right: 30px;
+  border: none;
+}
+.enter-regis {
+  position: relative;
+}
+.enter-regis a button {
+  position: absolute;
+  top: 0;
+  border-radius: 25px !important;
+  right: 25px;
+  height: 40px;
+  padding: 0 20px;
+  color: white;
+  background-color: #ffb416;
+  border: #fff;
+}
+
+.logo-footer {
+  max-width: 100%;
+  height: auto;
+  margin-bottom: 25px;
+  margin-top: 25px;
+}
+.introduc p {
+  color: white;
+  margin-top: 15px;
+  font-size: 16px;
+  color: #fff;
+}
+
+.footer-top h1 {
+  font-size: 16px;
+  font-weight: bold;
+  color: #fff;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+}
+.footer-top {
+  margin-top: 120px;
+}
+.address li {
+  font-weight: bolder;
+  color: white;
+  word-spacing: 2px;
+}
+.address li span {
+  font-size: 1.5rem;
+  font-style: italic;
+  font-weight: 200;
+}
+.information a {
+  font-size: 2.3rem;
+  margin: 10px 8px;
+  cursor: pointer;
+}

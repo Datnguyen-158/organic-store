@@ -1,0 +1,38 @@
+.logo-img {
+  width: 50px;
+  border-radius: 10px;
+  height: 50px;
+}
+.logo-img img {
+  width: 100%;
+  border-radius: 50%;
+  height: auto;
+}
+.slider-admin {
+  background-color: beige;
+  width: 100%;
+  height: auto;
+  padding: 10px;
+  text-align: left;
+  margin-top: 50px;
+}
+.slider-admin span {
+  text-transform: uppercase;
+  padding-left: 10px;
+  font-size: 1.7rem;
+}
+.slider-admin ul li {
+  margin: 8px 0;
+}
+.slider-admin ul li a {
+  color: #888;
+  font-size: 1.4rem;
+  margin: 0 7px;
+}
+.slider-admin ul li {
+  color: #888;
+  font-size: 1.8rem;
+}
+.slider-admin ul li a:hover {
+  color: #ffb416;
+}

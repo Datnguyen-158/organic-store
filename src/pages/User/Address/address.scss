@@ -1,0 +1,25 @@
+.address-group p {
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.change-address p button {
+  font-size: 14px;
+  background: transparent;
+  border: 0;
+  color: #2d9cdb;
+  margin-top: 40px;
+  margin-right: 130px;
+}
+.address-info {
+  border-top: 1px #ebebeb solid;
+  padding-top: 16px;
+  margin-top: 20px;
+}
+.modalss {
+  position: fixed;
+  top: 0;
+  width: 500vh;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+}

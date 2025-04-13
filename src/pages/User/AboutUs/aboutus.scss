@@ -1,0 +1,36 @@
+.bread_crumb {
+  background: url('https://bizweb.dktcdn.net/100/431/449/themes/877121/assets/bg-breadcrumb.jpg?1705917472502')
+    no-repeat;
+  margin-bottom: 30px;
+  height: 200px;
+  background-size: cover;
+}
+.bread_crumb_head {
+  padding-top: 50px;
+}
+.bread_crumb_head h1 {
+  color: #000;
+  font-weight: 700;
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+.link_bread_crumb {
+  display: flex;
+
+  text-align: center;
+  background-color: transparent;
+  font-size: 16px;
+  justify-content: center;
+}
+.link_bread_crumb a {
+  color: #000;
+}
+.link_bread_crumb a:hover {
+  color: #ffb416;
+}
+.link_bread_crumb a::after {
+  content: '/';
+  padding: 0 5px;
+  color: #000;
+}
+////////////////////////////////////////////////////////

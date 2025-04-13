@@ -1,0 +1,61 @@
+.home-admin {
+  margin-top: 50px;
+  padding: 15px 15px;
+}
+.title-admin {
+  text-align: left;
+  border-bottom: 1px solid #ccc;
+  width: 100%;
+  color: rgba(98, 103, 115, 0.6);
+}
+.total-admin {
+  text-align: center;
+}
+.total-admin div {
+  margin-top: 10px;
+}
+.total-acctount-admin,
+.total-order-admin,
+.total-price-admin {
+  box-shadow: rgba(0, 0, 0, 0.1) 0px -4px 10px 4px;
+  width: 100%;
+  height: 100%;
+  margin-top: 15px;
+  padding-top: 25px;
+}
+.col-4 div h6 {
+  font-size: 1.8rem;
+  text-align: center;
+}
+.date-admin div {
+  margin-top: 40px;
+  margin-bottom: 30px;
+}
+.statistic {
+  margin-right: 10px;
+  padding: 7px 15px;
+  border-radius: 10px;
+  background-color: #685454;
+  color: white;
+  border: none;
+}
+.statistic:hover {
+  background-color: #ffb416;
+}
+.allin:hover {
+  background-color: #3ba66b;
+}
+.allin {
+  // margin-left: 10px;
+  padding: 7px 15px;
+  border-radius: 10px;
+  background-color: #d66767;
+  color: white;
+  border: none;
+}
+.home-admin h5 {
+  text-transform: uppercase;
+  color: rgba(98, 103, 115, 0.6);
+  text-align: left;
+  font-size: 2rem;
+}

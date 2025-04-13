@@ -1,0 +1,44 @@
+.account-admin {
+  background-color: beige;
+  min-height: 100vh;
+  padding-left: 4px;
+  margin-top: 50px;
+  padding: 15px 15px;
+}
+.add-account {
+  text-align: left;
+}
+.add-account button {
+  font-size: 1.8rem;
+}
+tr,
+td,
+tbody,
+th,
+thead {
+  border-color: inherit;
+  border-style: solid;
+}
+.table-add-account table thead tr th {
+  //   padding: 5px 5px;
+}
+.table-add-account table thead tr th {
+  border: 1px solid #ccc;
+
+  padding: 10px 5px;
+  font-weight: 800;
+}
+.table-add-account table tbody tr td {
+  border: 1px solid #ccc;
+  padding: 15px 5px;
+}
+.table-add-account table tbody tr td button {
+  font-size: 1.6rem;
+}
+.table-add-account table tbody tr,
+.table-add-account table thead tr,
+.table-add-account table {
+  border: 1px solid #ccc;
+
+  width: 100%;
+}
