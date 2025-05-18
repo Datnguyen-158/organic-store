@@ -5,7 +5,7 @@ import classNames from 'classnames/bind'
 
 function Admin({ children }) {
   return (
-    <div style={{ backgroundColor: ' #ccc' }}>
+    <div style={{ backgroundColor: 'rgb(190, 248, 190)' }}>
       <Header />
 
       <div className="container">

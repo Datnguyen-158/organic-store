@@ -1,10 +1,66 @@
 import { Link } from 'react-router-dom'
 import classNames from 'classnames/bind'
 import '@fortawesome/fontawesome-free/css/all.min.css'
-
 import styles from './Home.scss'
+import categoryApi from '../../../api/categoryApi'
+import productApi from '../../../api/productApi'
+import newApi from '../../../api/newsApi'
+import React, { useState, useEffect } from 'react'
 const d = classNames.bind(styles)
 function Home() {
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+  const imageMapping = {
+    'Trứng và bơ':
+      'https://bizweb.dktcdn.net/100/431/449/themes/877121/assets/cate_1.jpg?1742273150136',
+    'Thực phẩm khô':
+      'https://bizweb.dktcdn.net/100/431/449/themes/877121/assets/cate_2.jpg?1742273150136',
+    'Thịt tươi sống':
+      'https://bizweb.dktcdn.net/100/431/449/themes/877121/assets/cate_3.jpg?1742273150136',
+    'Trái cây':
+      'https://bizweb.dktcdn.net/100/431/449/themes/877121/assets/cate_4.jpg?1742273150136',
+    'Rau củ quả':
+      'https://bizweb.dktcdn.net/100/431/449/themes/877121/assets/cate_5.jpg?1742273150136',
+  }
+
+  const [categories, setCategories] = useState([])
+  const [products, setProducts] = useState([])
+
+  useEffect(() => {
+    categoryApi
+      .getCategories()
+      .then((response) => {
+        setCategories(response.data)
+      })
+      .catch((error) => {
+        console.error('Error loading categories', error)
+      })
+  }, [])
+  const [news, setNews] = useState([])
+  useEffect(() => {
+    newApi
+      .getNews()
+      .then((response) => {
+        setNews(response.data)
+        console.log(response.data)
+      })
+      .catch((error) => {
+        console.error('Error loading news', error)
+      })
+  }, [])
+
+  useEffect(() => {
+    productApi
+      .getProduct()
+      .then((response) => {
+        setProducts(response.data)
+      })
+      .catch((error) => {
+        console.error('Error loading product', error)
+      })
+  }, [])
+
   return (
     <div className={d('Home')}>
       {/* banner */}
@@ -22,64 +78,28 @@ function Home() {
       {/* banner */}
       {/* Category */}
       <div className={d('Home-category')}>
-        <div className="container justify-content-betwee ">
+        <div className="container justify-content-between ">
           <div className="row ">
             <div className={d('category')}>
-              <div className={d('col-2 category-direct')}>
-                <div class="cards">
-                  <img
-                    src="https://bizweb.dktcdn.net/100/431/449/themes/877121/assets/cate_1.jpg?1742273150136"
-                    alt=""
-                  ></img>
-                  <Link to="/" class="card-title ">
-                    <h4>Bơ và trứng</h4>
-                  </Link>
+              {categories.slice(0, 5).map((category) => (
+                <div className={d('col-2')} key={category.category_id}>
+                  <div className="cards">
+                    <img
+                      src={
+                        imageMapping[category.category_name] ||
+                        '/images/default.png'
+                      }
+                      alt={category.name}
+                    />
+                    <Link
+                      to={`/Product?category=${category.category_id}`}
+                      className="card-title"
+                    >
+                      <h4>{category.category_name}</h4>
+                    </Link>
+                  </div>
                 </div>
-              </div>
-              <div className={d('col-2')}>
-                <div class="cards ">
-                  <img
-                    src="https://bizweb.dktcdn.net/100/431/449/themes/877121/assets/cate_2.jpg?1742273150136"
-                    alt=""
-                  ></img>
-                  <Link to="/" class="card-title ">
-                    <h4>Thực phẩm khô</h4>
-                  </Link>
-                </div>
-              </div>
-              <div className={d('col-2')}>
-                <div class="cards ">
-                  <img
-                    src="https://bizweb.dktcdn.net/100/431/449/themes/877121/assets/cate_4.jpg?1742273150136"
-                    alt=""
-                  ></img>
-                  <Link to="/" class="card-title ">
-                    <h4>Trái cây</h4>
-                  </Link>
-                </div>
-              </div>
-              <div className={d('col-2')}>
-                <div class="cards">
-                  <img
-                    src="https://bizweb.dktcdn.net/100/431/449/themes/877121/assets/cate_3.jpg?1742273150136"
-                    alt=""
-                  ></img>
-                  <Link to="/" class="card-title ">
-                    <h4>Thịt tươi sống</h4>
-                  </Link>
-                </div>
-              </div>
-              <div className={d('col-2')}>
-                <div class="cards">
-                  <img
-                    src="https://bizweb.dktcdn.net/100/431/449/themes/877121/assets/cate_6.jpg?1742273150136"
-                    alt=""
-                  ></img>
-                  <Link to="/" class="card-title ">
-                    <h4>Nước ép</h4>
-                  </Link>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>
@@ -91,7 +111,7 @@ function Home() {
           <div className={d('border-red')}>
             <div className={d('block-title')}>
               <h2>
-                <Link to="/">
+                <Link to="/" onClick={scrollToTop}>
                   <img
                     src="https://png.pngtree.com/png-vector/20210114/ourlarge/pngtree-promotion-vector-icon-png-image_2742739.png"
                     alt=""
@@ -105,122 +125,37 @@ function Home() {
                 <div
                   className={d('product-list d-flex justify-content-between')}
                 >
-                  <div className="col-2 ">
-                    <Link to="./">
-                      <div className="cardss">
-                        <div className={d('sale-label')}>
-                          <span>-41%</span>
+                  {products.slice(0, 5).map((item) => (
+                    <div className="col-2" key={item.product_id}>
+                      <Link
+                        onClick={scrollToTop}
+                        to={`/ProductDetail?product=${item.product_id}`}
+                      >
+                        <div className="cardss">
+                          <div className={d('sale-label')}>
+                            <span>-{item.product_discount}%</span>
+                          </div>
+                          <span className={d('boder')}></span>
+                          <img src={item.product_img} alt={item.product_name} />
+                          <h4 className="card-title">{item.product_name}</h4>
+                          <div
+                            className={d(
+                              'price-item',
+                              'd-flex',
+                              'align-content-center'
+                            )}
+                          >
+                            <span className={d('price')}>
+                              {item.product_dsc.toLocaleString()}đ
+                            </span>
+                            <span className={d('old-price')}>
+                              {item.product_price.toLocaleString()}đ
+                            </span>
+                          </div>
                         </div>
-                        <span className={d('boder')}></span>
-                        <img
-                          src="https://bizweb.dktcdn.net/thumb/large/100/431/449/products/sp22.jpg?v=1628522988073"
-                          alt=""
-                        />
-                        <h4 className="card-title">Ổi lê ruột đỏ</h4>
-                        <div
-                          className={d(
-                            'price-item d-flex align-content-center '
-                          )}
-                        >
-                          <span className={d('price')}>40.000đ</span>
-                          <span className={d('old-price')}>100.000đ</span>
-                        </div>
-                      </div>
-                    </Link>
-                  </div>
-                  <div className="col-2 ">
-                    <Link to="./">
-                      <div className="cardss">
-                        <div className={d('sale-label')}>
-                          <span>-12%</span>
-                        </div>
-                        <span className={d('boder')}></span>
-                        <img
-                          src="https://bizweb.dktcdn.net/thumb/large/100/431/449/products/sp2.jpg?v=1625549083007"
-                          alt=""
-                        />
-                        <h4 className="card-title iii">Đào Mỹ</h4>
-                        <div
-                          className={d(
-                            'price-item d-flex align-content-center '
-                          )}
-                        >
-                          <span className={d('price')}>98.000đ</span>
-                          <span className={d('old-price')}>198.000đ</span>
-                        </div>
-                      </div>
-                    </Link>
-                  </div>
-                  <div className="col-2 ">
-                    <Link to="./">
-                      <div className="cardss">
-                        <div className={d('sale-label')}>
-                          <span>-27%</span>
-                        </div>
-                        <span className={d('boder')}></span>
-                        <img
-                          src="https://bizweb.dktcdn.net/thumb/large/100/431/449/products/sp3.jpg?v=1628523053697"
-                          alt=""
-                        />
-                        <h4 className="card-title">Dâu tây</h4>
-                        <div
-                          className={d(
-                            'price-item d-flex align-content-center '
-                          )}
-                        >
-                          <span className={d('price')}>138.000đ</span>
-                          <span className={d('old-price')}>268.000đ</span>
-                        </div>
-                      </div>
-                    </Link>
-                  </div>
-                  <div className="col-2 ">
-                    <Link to="./">
-                      <div className="cardss">
-                        <div className={d('sale-label')}>
-                          <span>-21%</span>
-                        </div>
-                        <span className={d('boder')}></span>
-                        <img
-                          src="https://bizweb.dktcdn.net/thumb/large/100/431/449/products/sp5.jpg?v=1625548796893
-"
-                          alt=""
-                        />
-                        <h4 className="card-title">Cam mật</h4>
-                        <div
-                          className={d(
-                            'price-item d-flex align-content-center '
-                          )}
-                        >
-                          <span className={d('price')}>68.000đ</span>
-                          <span className={d('old-price')}>148.000đ</span>
-                        </div>
-                      </div>
-                    </Link>
-                  </div>
-                  <div className="col-2 ">
-                    <Link to="./">
-                      <div className="cardss">
-                        <div className={d('sale-label')}>
-                          <span>-15%</span>
-                        </div>
-                        <img
-                          src="https://bizweb.dktcdn.net/thumb/large/100/431/449/products/sp6.jpg?v=1625548895950
-"
-                          alt=""
-                        />
-                        <h4 className="card-title">Chanh tươi</h4>
-                        <div
-                          className={d(
-                            'price-item d-flex align-content-center '
-                          )}
-                        >
-                          <span className={d('price')}>30.000đ</span>
-                          <span className={d('old-price')}>38.000đ</span>
-                        </div>
-                      </div>
-                    </Link>
-                  </div>
+                      </Link>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -232,8 +167,8 @@ function Home() {
       <div className={d('section-banner')}>
         <div className="container">
           <div className="row ">
-            <div className="col-6">
-              <Link to="./" className={d('banner-left')}>
+            <div className="col-6 ">
+              <Link onClick={scrollToTop} to="/" className={d('banner-left')}>
                 <img
                   src="https://bizweb.dktcdn.net/100/431/449/themes/877121/assets/banner_1.jpg?1742273150136"
                   alt=""
@@ -241,7 +176,7 @@ function Home() {
               </Link>
             </div>
             <div className="col-6">
-              <Link to="./" className={d('banner-right')}>
+              <Link onClick={scrollToTop} to="/" className={d('banner-right')}>
                 <img
                   src="https://bizweb.dktcdn.net/100/431/449/themes/877121/assets/banner_2.jpg?1742273150136"
                   alt=""
@@ -264,25 +199,17 @@ function Home() {
                 <h2>
                   <Link to="./"></Link>Trái cây
                 </h2>
-                <div className={d('block-cate')}>
-                  <ul style={{ marginTop: '10px' }}>
-                    <li>
-                      <Link to="./">Trái cây</Link>
-                    </li>
-                    <li>
-                      <Link to="./">Thịt tươi</Link>
-                    </li>
-                    <li>
-                      <Link to="./">Hải sản tươi</Link>
-                    </li>
-                    <li>
-                      <Link to="./">Rau củ</Link>
-                    </li>
-                    <li>
-                      <Link to="./">Thực phẩm khô</Link>
-                    </li>
-                  </ul>
-                </div>
+                {categories.slice(0, 5).map((category) => (
+                  <div className={d('block-cate')}>
+                    <ul style={{ marginTop: '10px' }}>
+                      <li>
+                        <Link to={`/Product?category=${category.category_id}`}>
+                          {category.category_name}
+                        </Link>
+                      </li>
+                    </ul>
+                  </div>
+                ))}
                 <div className={d('view-more')}>
                   <Link to="./">Mua sắm ngay bây giờ</Link>
                 </div>
@@ -291,84 +218,33 @@ function Home() {
             <div className="col-8">
               <div className="container">
                 <div className="row  d-flex justify-content-between">
-                  <li className={d('col-2 ')}>
-                    <Link to="./">
-                      <div className="product-grid">
-                        <div className={d('sale-label')}>
-                          <span>-41%</span>
+                  {products.slice(1, 5).map((product) => (
+                    <li className={d('col-2 ')} key={product.product_id}>
+                      <Link
+                        onClick={scrollToTop}
+                        to={`/ProductDetail?product=${product.product_id}`}
+                      >
+                        <div className="product-grid">
+                          <div className={d('sale-label')}>
+                            <span>{product.product_discount}%</span>
+                          </div>
+                          <img
+                            src={product.product_img}
+                            alt={product.product_name}
+                          />
+                          <h4 className="grid-title">{product.product_name}</h4>
+                          <div className={d('price-items  ')}>
+                            <span className={d('price')}>
+                              {product.product_dsc}đ
+                            </span>
+                            <span className={d('old-price')}>
+                              {product.product_price}
+                            </span>
+                          </div>
                         </div>
-
-                        <img
-                          src="https://bizweb.dktcdn.net/thumb/large/100/431/449/products/sp22.jpg?v=1628522988073"
-                          alt=""
-                        />
-                        <h4 className="grid-title">Ổi lê ruột đỏ</h4>
-                        <div className={d('price-items  ')}>
-                          <span className={d('price')}>40.000đ</span>
-                          <span className={d('old-price')}>100.000đ</span>
-                        </div>
-                      </div>
-                    </Link>
-                  </li>
-                  <li className={d('col-2')}>
-                    <Link to="./">
-                      <div className="product-grid">
-                        <div className={d('sale-label')}>
-                          <span>-21%</span>
-                        </div>
-
-                        <img
-                          src="https://bizweb.dktcdn.net/thumb/large/100/431/449/products/sp3.jpg?v=1628523053697"
-                          alt=""
-                        />
-                        <h4 className="grid-title">Dâu tây</h4>
-                        <div className={d('price-items')}>
-                          <span className={d('price')}>138.000đ</span>
-                          <span className={d('old-price')}>238.000đ</span>
-                        </div>
-                      </div>
-                    </Link>
-                  </li>
-                  <li className={d('col-2')}>
-                    {' '}
-                    <Link to="./">
-                      <div className="product-grid">
-                        <div className={d('sale-label')}>
-                          <span>-12%</span>
-                        </div>
-
-                        <img
-                          src="https://bizweb.dktcdn.net/thumb/large/100/431/449/products/sp6.jpg?v=1625548895950"
-                          alt=""
-                        />
-                        <h4 className="grid-title">Chanh tươi vỏ xanh</h4>
-                        <div className={d('price-items')}>
-                          <span className={d('price')}>38.000đ</span>
-                          <span className={d('old-price')}>30.000đ</span>
-                        </div>
-                      </div>
-                    </Link>
-                  </li>
-                  <li className={d('col-2')}>
-                    {' '}
-                    <Link to="./">
-                      <div className="product-grid">
-                        <div className={d('sale-label')}>
-                          <span>-15%</span>
-                        </div>
-
-                        <img
-                          src="https://bizweb.dktcdn.net/thumb/large/100/431/449/products/sp2.jpg?v=1625549083007"
-                          alt=""
-                        />
-                        <h4 className="grid-title">Đào đỏ Mỹ</h4>
-                        <div className={d('price-items')}>
-                          <span className={d('price')}>128.000đ</span>
-                          <span className={d('old-price')}>168.000đ</span>
-                        </div>
-                      </div>
-                    </Link>
-                  </li>
+                      </Link>
+                    </li>
+                  ))}
                 </div>
               </div>
             </div>
@@ -386,94 +262,52 @@ function Home() {
             <div className="col-8">
               <div className="container">
                 <div className="row block-product-right d-flex justify-content-between">
-                  <li className={d('col-2 ')}>
-                    <Link to="./">
-                      <div className="product-grid">
-                        <img
-                          src="https://bizweb.dktcdn.net/thumb/large/100/431/449/products/sp7.jpg?v=1625547385647"
-                          alt=""
-                        />
-                        <h4 className="grid-title">Hành tây</h4>
-                        <div className={d('price-items  ')}>
-                          <span className={d('price')}>Liên hệ</span>
-                          <span className={d('old-price')}></span>
-                        </div>
-                      </div>
-                    </Link>
-                  </li>
-                  <li className={d('col-2')}>
-                    <Link to="./">
-                      <div className="product-grid">
-                        <img
-                          src="https://bizweb.dktcdn.net/thumb/large/100/431/449/products/sp20.jpg?v=1625547217850"
-                          alt=""
-                        />
-                        <h4 className="grid-title">Cà chua</h4>
-                        <div className={d('price-items')}>
-                          <span className={d('price')}>15.000đ</span>
-                          <span className={d('old-price')}></span>
-                        </div>
-                      </div>
-                    </Link>
-                  </li>
-                  <li className={d('col-2')}>
-                    {' '}
-                    <Link to="./">
-                      <div className="product-grid">
-                        <img
-                          src="https://bizweb.dktcdn.net/thumb/large/100/431/449/products/sp19.jpg?v=1625547134823"
-                          alt=""
-                        />
-                        <h4 className="grid-title">Ớt chuông vàng</h4>
-                        <div className={d('price-items')}>
-                          <span className={d('price')}>12.000đ</span>
-                          <span className={d('old-price')}></span>
-                        </div>
-                      </div>
-                    </Link>
-                  </li>
-                  <li className={d('col-2')}>
-                    {' '}
-                    <Link to="./">
-                      <div className="product-grid">
-                        <img
-                          src="https://bizweb.dktcdn.net/thumb/large/100/431/449/products/sp17-2.jpg?v=1625547082403"
-                          alt=""
-                        />
-                        <h4 className="grid-title">Ớt chuông xanh</h4>
-                        <div className={d('price-items')}>
-                          <span className={d('price')}>12.000đ</span>
-                          <span className={d('old-price')}></span>
-                        </div>
-                      </div>
-                    </Link>
-                  </li>
+                  {products
+                    .filter((item) => item.category_id === 11)
+                    .slice(0, 4)
+                    .map((item) => (
+                      <li className={d('col-2 ')} alt={item.product_name}>
+                        <Link
+                          onClick={scrollToTop}
+                          to={`/ProductDetail?product=${item.product_id}`}
+                        >
+                          <div className="product-grid">
+                            <img
+                              src={`/${encodeURI(item.product_img)}`}
+                              alt={item.product_name}
+                            />
+
+                            <h4 className="grid-title">{item.product_name}</h4>
+
+                            <div className={d('price-items  ')}>
+                              <span className={d('price')}>
+                                {item.product_price}
+                              </span>
+                              {/* <span className={d('old-price')}></span> */}
+                            </div>
+                          </div>
+                        </Link>
+                      </li>
+                    ))}
                 </div>
               </div>
             </div>
             <div className={d('col-3 product_list_2')}>
               <div className={d('title-link')}>
                 <h2>
-                  <Link to="./"></Link>Rau củ quả
+                  <Link></Link>
+                  Rau củ quả
                 </h2>
                 <div className={d('block-cate')}>
-                  <ul style={{ marginTop: '10px' }}>
-                    <li>
-                      <Link to="./">Trái cây</Link>
-                    </li>
-                    <li>
-                      <Link to="./">Thịt tươi</Link>
-                    </li>
-                    <li>
-                      <Link to="./">Hải sản tươi</Link>
-                    </li>
-                    <li>
-                      <Link to="./">Rau củ</Link>
-                    </li>
-                    <li>
-                      <Link to="./">Thực phẩm khô</Link>
-                    </li>
-                  </ul>
+                  {categories.slice(0, 5).map((item) => (
+                    <ul style={{ marginTop: '10px' }} key={item.category_id}>
+                      <li>
+                        <Link to={`/Product?category=${item.category_id}`}>
+                          {item.category_name}
+                        </Link>
+                      </li>
+                    </ul>
+                  ))}
                 </div>
                 <div className={d('view-more')}>
                   <Link to="./">Mua sắm ngay bây giờ</Link>
@@ -494,25 +328,19 @@ function Home() {
             <div className={d('col-3 product_list_3')}>
               <div className={d('title-link')}>
                 <h2>
-                  <Link to="./"></Link>Thực phẩm tươi
+                  <Link to="./"></Link>Thực phẩm khô
                 </h2>
                 <div className={d('block-cate')}>
                   <ul style={{ marginTop: '10px' }}>
-                    <li>
-                      <Link to="./">Trái cây</Link>
-                    </li>
-                    <li>
-                      <Link to="./">Thịt tươi</Link>
-                    </li>
-                    <li>
-                      <Link to="./">Hải sản tươi</Link>
-                    </li>
-                    <li>
-                      <Link to="./">Rau củ</Link>
-                    </li>
-                    <li>
-                      <Link to="./">Thực phẩm khô</Link>
-                    </li>
+                    {categories.slice(0, 5).map((item) => (
+                      <ul style={{ marginTop: '10px' }} key={item.category_id}>
+                        <li>
+                          <Link to={`/Product?category=${item.category_id}`}>
+                            {item.category_name}
+                          </Link>
+                        </li>
+                      </ul>
+                    ))}
                   </ul>
                 </div>
                 <div className={d('view-more')}>
@@ -523,72 +351,38 @@ function Home() {
             <div className="col-8">
               <div className="container">
                 <div className="row block-product-right d-flex justify-content-between">
-                  <li className={d('col-2 ')}>
-                    <Link to="./">
-                      <div className="product-grid">
-                        <img
-                          src="https://bizweb.dktcdn.net/thumb/large/100/431/449/products/sp22.jpg?v=1628522988073"
-                          alt=""
-                        />
-                        <h4 className="grid-title">Thịt bò</h4>
-                        <div className={d('price-items  ')}>
-                          <span className={d('price')}>160.000đ</span>
-                          <span className={d('old-price')}></span>
-                        </div>
-                      </div>
-                    </Link>
-                  </li>
-                  <li className={d('col-2')}>
-                    <Link to="./">
-                      <div className="product-grid">
-                        <div className={d('sale-label')}>
-                          <span>-33%</span>
-                        </div>
-
-                        <img
-                          src="https://bizweb.dktcdn.net/thumb/large/100/431/449/products/sp10.jpg?v=1625546411053"
-                          alt=""
-                        />
-                        <h4 className="grid-title">Cá hồi</h4>
-                        <div className={d('price-items')}>
-                          <span className={d('price')}>200.000đ</span>
-                          <span className={d('old-price')}>300.000đ</span>
-                        </div>
-                      </div>
-                    </Link>
-                  </li>
-                  <li className={d('col-2')}>
-                    {' '}
-                    <Link to="./">
-                      <div className="product-grid">
-                        <img
-                          src="https://bizweb.dktcdn.net/thumb/large/100/431/449/products/sp26.jpg?v=1625546066287"
-                          alt=""
-                        />
-                        <h4 className="grid-title">Thịt gà</h4>
-                        <div className={d('price-items')}>
-                          <span className={d('price')}>Liên hệ</span>
-                          <span className={d('old-price')}></span>
-                        </div>
-                      </div>
-                    </Link>
-                  </li>
-                  <li className={d('col-2')}>
-                    {' '}
-                    <Link to="./">
-                      <div className="product-grid">
-                        <img
-                          src="https://bizweb.dktcdn.net/thumb/large/100/431/449/products/sp28.jpg?v=1625545987807"
-                          alt=""
-                        />
-                        <h4 className="grid-title">Thịt lợn</h4>
-                        <div className={d('price-items')}>
-                          <span className={d('price')}>Liên hệ</span>
-                          <span className={d('old-price')}></span>
-                        </div>
-                      </div>
-                    </Link>
-                  </li>
+                  {products
+                    .filter((product) => product.category_id === 12)
+                    .slice(1, 5)
+                    .map((product) => (
+                      <li className={d('col-2 ')} key={product.product_id}>
+                        <Link
+                          onClick={scrollToTop}
+                          to={`/ProductDetail?product=${product.product_id}`}
+                        >
+                          <div className="product-grid">
+                            <div className={d('sale-label')}>
+                              <span>{product.product_discount}%</span>
+                            </div>
+                            <img
+                              src={product.product_img}
+                              alt={product.product_name}
+                            />
+                            <h4 className="grid-title">
+                              {product.product_name}
+                            </h4>
+                            <div className={d('price-items  ')}>
+                              <span className={d('price')}>
+                                {product.product_dsc}đ
+                              </span>
+                              <span className={d('old-price')}>
+                                {product.product_price}
+                              </span>
+                            </div>
+                          </div>
+                        </Link>
+                      </li>
+                    ))}
                 </div>
               </div>
             </div>
@@ -618,82 +412,27 @@ function Home() {
         <div className={d('block_mobile')}>
           <div className="container">
             <div className="row ">
-              <div className="col-3 item_block">
-                <Link to="./" className={d('image-wrapper')}>
-                  <img
-                    src="https://bizweb.dktcdn.net/thumb/large/100/431/449/articles/t4.jpg?v=1625889543947"
-                    alt=""
-                  ></img>
-                </Link>
-                <div className={d('content_block')}>
-                  <h3>
-                    <Link to="./">
-                      Đi chợ online: Xu hướng lên ngôi nhanh tay đặt hàng nào
+              {news.slice(0, 4).map((item) => (
+                <div className="col-3 item_block" key={item.new_id}>
+                  <div>
+                    <Link to="./" className={d('image-wrapper')}>
+                      <img
+                        src={`http://localhost:8000/${item.new_img}`}
+                        alt={item.new_title}
+                      />
                     </Link>
-                  </h3>
-                  <div className={d('time-post d-flex flex-column')}>
-                    <span>Tác giả Nguyễn Khắc Đạt |</span>
-                    <span>15/08/2024</span>{' '}
+                    <div className={d('content_block')}>
+                      <h3>
+                        <Link to="./">{item.new_title}</Link>
+                      </h3>
+                      <div className={d('time-post d-flex flex-column')}>
+                        <span>Tác giả Nguyễn Khắc Đạt |</span>
+                        <span>15/08/2024</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div className="col-3 item_block">
-                <Link to="./" className={d('image-wrapper')}>
-                  <img
-                    src="https://bizweb.dktcdn.net/thumb/large/100/431/449/articles/t1.jpg?v=1625889497397"
-                    alt=""
-                  ></img>
-                </Link>
-                <div className={d('content_block')}>
-                  <h3>
-                    <Link to="./">
-                      Đi chợ online: Xu hướng lên ngôi nhanh tay đặt hàng nào
-                    </Link>
-                  </h3>
-                  <div className={d('time-post d-flex flex-column')}>
-                    <span>Tác giả Nguyễn Khắc Đạt |</span>
-                    <span>15/08/2024</span>{' '}
-                  </div>
-                </div>
-              </div>
-              <div className="col-3 item_block">
-                <Link to="./" className={d('image-wrapper')}>
-                  <img
-                    src="	https://bizweb.dktcdn.net/thumb/large/100/431/449/articles/t6.jpg?v=1625889575490"
-                    alt=""
-                  ></img>
-                </Link>
-                <div className={d('content_block')}>
-                  <h3>
-                    <Link to="./">
-                      Đi chợ online: Xu hướng lên ngôi nhanh tay đặt hàng nào
-                    </Link>
-                  </h3>
-                  <div className={d('time-post d-flex flex-column')}>
-                    <span>Tác giả Nguyễn Khắc Đạt |</span>
-                    <span>15/08/2024</span>{' '}
-                  </div>
-                </div>
-              </div>
-              <div className="col-3 item_block">
-                <Link to="./" className={d('image-wrapper')}>
-                  <img
-                    src="	https://bizweb.dktcdn.net/thumb/large/100/431/449/articles/t5.jpg?v=1625889560370"
-                    alt=""
-                  ></img>
-                </Link>
-                <div className={d('content_block')}>
-                  <h3>
-                    <Link to="./">
-                      Đi chợ online: Xu hướng lên ngôi nhanh tay đặt hàng nào
-                    </Link>
-                  </h3>
-                  <div className={d('time-post d-flex flex-column')}>
-                    <span>Tác giả Nguyễn Khắc Đạt |</span>
-                    <span>15/08/2024</span>{' '}
-                  </div>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>

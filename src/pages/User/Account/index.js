@@ -1,10 +1,51 @@
 import classNames from 'classnames/bind'
 import styles from './account.scss'
 import { Link } from 'react-router-dom'
-
+import { useState, useEffect } from 'react'
+import authUser from '../../../api/authUser'
+import receiverApi from '../../../api/receiverApi'
 const d = classNames.bind(styles)
 
 function Account() {
+  const userId = localStorage.getItem('user_id')
+  const [fullname, setFullName] = useState()
+  const [phone, setPhone] = useState()
+  const [email, setEmail] = useState()
+  const [user, setUser] = useState([])
+  const [order, setOrders] = useState([])
+  const [selectedSection, setSelectedSection] = useState('account')
+
+  const getUserName = () => {
+    authUser
+      .get_user_id(userId)
+      .then((response) => {
+        setUser(response.data[0])
+        // console.log('Response data:', response.data)
+      })
+      .catch((error) => {
+        console.error(
+          'Có lỗi khi lấy tên ' + error + '-' + error.response.data.message
+        )
+      })
+  }
+  // const getOrder = () => {
+  //   receiverApi
+  //     .getShowOrderbyId(userId)
+  //     .then((response) => {
+  //       setOrders(response.data)
+  //       // console.log('reponse:r', response.data)
+  //     })
+  //     .catch((error) => {
+  //       console.error(
+  //         'Có lỗi khi lấy đơn hàng ' + error + '-' + error.response.data.message
+  //       )
+  //     })
+  // }
+  useEffect(() => {
+    getUserName()
+    // getCustomer()
+    // getOrder()
+  }, [userId])
   return (
     <div>
       <section className={d('bread_crumb')}>
@@ -26,20 +67,22 @@ function Account() {
                 <h1>Trang tài khoản</h1>
                 <p style={{ marginBottom: '30px' }}>
                   Xin chào,
-                  <span style={{ fontWeight: '600' }}> Khắc Đạt</span>
+                  <span style={{ fontWeight: '600' }}> {user.user_name}</span>
                 </p>
                 <span>
                   <li>
-                    <Link to="../Account">Thông tin tài khoản</Link>
+                    <Link to="/Account">Thông tin tài khoản</Link>
                   </li>
                   <li>
-                    <Link to="../Order">Đơn hàng của bạn</Link>
+                    <Link to="/Order">Đơn hàng của bạn</Link>
                   </li>
                   <li>
-                    <Link to="../ChangePass">Đổi mật khẩu</Link>
+                    <Link to="/ChangePass">Đổi mật khẩu</Link>
                   </li>
                   <li>
-                    <Link to="../Address">Sổ địa chỉ(2)</Link>
+                    <Link to="/Address">
+                      Sổ địa chỉ({user?.receiver?.length || 0})
+                    </Link>
                   </li>
                   <li>
                     <Link to="../Login">Đăng xuât</Link>
@@ -49,21 +92,23 @@ function Account() {
             </div>
             <div className={d('col-9 info-account')}>
               <h1 style={{ marginBottom: '20px' }}>Thông tin tài khoản</h1>
+
               <div className={d('my-account')}>
                 <p>
-                  <strong>Họ tên:</strong> Khắc Đạt
+                  <strong>Họ tên:</strong> {user.user_name}
                 </p>
                 <p>
-                  <strong>Email: </strong> datnguyen158203@gmail.com
+                  <strong>Email: </strong> {user.user_email}
                 </p>
                 <p>
-                  <strong>Điện thoại:</strong> 0333158971
+                  <strong>Điện thoại:</strong>{' '}
+                  {user?.receiver?.[0]?.receiver_phone}
                 </p>
                 <p>
-                  <strong>Địa chỉ:</strong> Tổ 14, Phú Lương, Hà Đông, Hà Nội
-                </p>
-                <p>
-                  <strong>Công ty: </strong> TNHH 1 Thành Viên
+                  <strong>Địa chỉ</strong> {user?.receiver?.[0]?.receiver_desc},
+                  {user?.receiver?.[0]?.receiver_commune},
+                  {user?.receiver?.[0]?.receiver_district},
+                  {user?.receiver?.[0]?.receiver_city},
                 </p>
               </div>
             </div>

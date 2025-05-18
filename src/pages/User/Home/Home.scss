@@ -23,8 +23,35 @@
   font-size: 1.8rem;
   padding-top: 50px;
 }
+
+// .banner-left img {
+//   width: 100%;
+//   display: block;
+//   transition: transform 0.3s ease-in-out;
+// }
+.banner-right,
+.banner-left {
+  overflow: hidden;
+  display: block;
+  height: auto;
+  position: relative;
+}
+.banner-right img,
+.banner-left img {
+  width: 100%;
+  height: auto; /* Đây mới đúng */
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+.banner-right img:hover,
+.banner-left img:hover {
+  transform: scale(1.05);
+}
 .cards a:hover {
   color: #ffb416;
+}
+.noibat {
+  z-index: 10000;
 }
 .category {
   display: flex;
@@ -130,9 +157,10 @@
   background-color: #f14e18;
   border-radius: 10px 0;
 }
-.card-title:hover {
+.card-title h4:hover {
   cursor: pointer;
   color: #ffb416;
+  // font-size: 100px;
 }
 
 .col-2 a h4 {
@@ -299,7 +327,7 @@
   position: relative;
   width: 100%;
 
-  overflow: hidden;
+  // overflow: hidden;
 }
 
 .image-wrapper {

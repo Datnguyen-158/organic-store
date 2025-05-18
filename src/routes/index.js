@@ -14,6 +14,7 @@ import News from '../pages/User/News'
 import Account from '../pages/User/Account'
 import ChangePass from '../pages/User/ChangePass'
 import Address from '../pages/User/Address'
+import Thanks from '../pages/User/Thanks'
 // Admin
 import Admin from '../componients/Layout/Admin'
 import AdAccount from '../pages/Admin/Account'
@@ -34,6 +35,7 @@ const publicRoutes = [
   { path: '/Order', component: Order },
   { path: '/Login', component: Login },
   { path: '/News', component: News },
+  { path: '/Thanks', component: Thanks },
   { path: '/Contact', component: Contact },
   { path: '/Checkout', component: Checkout },
   { path: '/Account', component: Account },

@@ -1,10 +1,39 @@
 import { Link } from 'react-router-dom'
 import classNames from 'classnames/bind'
-
+import { useNavigate } from 'react-router-dom'
+import authUser from '../../../api/authUser'
 import styles from './register.scss'
+import React, { useState, useEffect } from 'react'
 
 const d = classNames.bind(styles)
 function Register() {
+  const navigate = useNavigate()
+  const [user_name, setName] = useState()
+  const [user_email, setEmail] = useState()
+  const [user_password, setPassword] = useState()
+  function HandleRegister(e) {
+    e.preventDefault()
+    const data = {
+      user_name,
+      user_email,
+      user_password,
+    }
+
+    authUser
+      .register(data)
+      .then((response) => {
+        alert('chúc mừng bạn đã đăng ký thành công')
+        setName()
+        setEmail()
+        setPassword()
+        navigate('/Login')
+      })
+      .catch((error) => {
+        console.error(
+          'Có lỗi khi đăng ký ' + error + '-' + error.response.data.message
+        )
+      })
+  }
   return (
     <div className={d('form_login')}>
       <section className={d('bread_crumb')}>
@@ -25,10 +54,10 @@ function Register() {
               <div className={d('page_login ')}>
                 <div className={d('page_login_list')}>
                   <li className={d('act')}>
-                    <Link to="./">Đăng Nhập</Link>
+                    <Link to="/Login">Đăng Nhập</Link>
                   </li>
                   <li>
-                    <Link to="./">Đăng Ký</Link>
+                    <Link to="/Register">Đăng Ký</Link>
                   </li>
                 </div>
                 <div className={d('page_login_content')}>
@@ -39,33 +68,14 @@ function Register() {
                     >
                       <fieldset className={d('form_group ')}>
                         <label for="">
-                          Họ <span className={d('required')}>*</span>
-                        </label>
-                        <input
-                          type="text"
-                          placeholder="Nhập họ của bạn"
-                        ></input>
-                        <span>Không được để trống</span>
-                      </fieldset>
-                      <fieldset className={d('form_group ')}>
-                        <label for="">
                           Tên <span className={d('required')}>*</span>
                         </label>
                         <input
                           type="text"
                           placeholder="Nhập tên của bạn"
+                          onChange={(e) => setName(e.target.value)}
                         ></input>
-                        <span>Không được để trống</span>
-                      </fieldset>
-                      <fieldset className={d('form_group ')}>
-                        <label for="">
-                          Số điện thoại <span className={d('required')}>*</span>
-                        </label>
-                        <input
-                          type="text"
-                          placeholder="Nhập SĐT của bạn"
-                        ></input>
-                        <span>Không được để trống</span>
+                        {/* <span>Không được để trống</span> */}
                       </fieldset>
                       <fieldset className={d('form_group ')}>
                         <label for="" required>
@@ -74,8 +84,9 @@ function Register() {
                         <input
                           type="email"
                           placeholder="Nhập địa chỉ email"
+                          onChange={(e) => setEmail(e.target.value)}
                         ></input>
-                        <span>Email sai định dạng</span>
+                        {/* <span>Email sai định dạng</span> */}
                       </fieldset>
                       <fieldset className={d('form_group')}>
                         <label for="">
@@ -84,12 +95,19 @@ function Register() {
                         <input
                           type="password"
                           placeholder="Nhập mật khẩu của bạn"
+                          onChange={(e) => setPassword(e.target.value)}
                         ></input>
-                        <span>Không được để trống</span>
+                        {/* <span>Không được để trống</span> */}
                       </fieldset>
 
                       <div className={d('btn-login')}>
-                        <button type="submit" value="đăng ký">
+                        <button
+                          type="submit"
+                          value="đăng ký"
+                          onClick={(e) => {
+                            HandleRegister(e)
+                          }}
+                        >
                           Tạo tài khoản
                         </button>
                       </div>

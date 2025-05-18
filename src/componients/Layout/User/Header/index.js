@@ -3,6 +3,12 @@ import classNames from 'classnames/bind'
 import { Link } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import '@fortawesome/fontawesome-free/css/all.min.css'
+import { useNavigate } from 'react-router-dom'
+import categoryApi from '../../../../api/categoryApi'
+import React, { useState, useEffect } from 'react'
+import { useContext } from 'react'
+import { CartContext } from '../../../../context/CartContext'
+
 import {
   faMagnifyingGlass,
   faLocationDot,
@@ -12,6 +18,28 @@ import {
 
 const d = classNames.bind(styles)
 function Header() {
+  const userId = localStorage.getItem('user_id')
+  const userName = localStorage.getItem('user_name')
+  const navigate = useNavigate()
+  console.log(userId)
+  const handleLogout = () => {
+    localStorage.clear()
+    navigate('/Login')
+  }
+  const { cartCount, setCartCount } = useContext(CartContext)
+  const [category, setCategory] = useState([])
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await categoryApi.getCategories()
+        setCategory(response.data)
+      } catch (error) {
+        console.error('Error fetching categories:', error)
+      }
+    }
+    fetchCategories()
+  }, [])
+
   return (
     <div className={d('container-fluid headerr')}>
       <div className={d('container h-100')}>
@@ -19,21 +47,26 @@ function Header() {
           <div className={d('col-5 Menu d-flex')}>
             <Link to="/">Trang chủ</Link>
             <Link to="/AboutUs">Giới thiệu</Link>
-            <Link to="/product" className={d('product')}>
+            <Link to="/Product" className={d('product')}>
               <div className={d('updown')}></div>
               Sản phẩm
               <div className="List-product">
-                <Link to="/">Trái cây</Link>
-                <Link to="/">Rau củ</Link>
-                <Link to="/">Hải sản</Link>
-                <Link to="/">Thịt tươi</Link>
-                <Link to="/">Bơ sữa</Link>
-                <Link to="/">Đồ ăn đóng hộp</Link>
-                <Link to="/">Đồ uống</Link>
+                {category.map((cat) => (
+                  <Link
+                    key={cat.category_id}
+                    to={`/Product?category=${cat.category_id}`}
+                  >
+                    {cat.category_name}
+                  </Link>
+                ))}
               </div>
             </Link>
-            <Link to="/News">Tin tức</Link>
-            <Link to="/Contact">Liên hệ</Link>
+            <Link to="/News" className="noibat">
+              Tin tức
+            </Link>
+            <Link to="/Contact" className="noibat">
+              Liên hệ
+            </Link>
           </div>
           <div className={d('col-2')}>
             <Link to="/">
@@ -69,9 +102,9 @@ function Header() {
                   </Link>
                 </li>
                 <li className={d('Group-cart')}>
-                  <Link to="./Cart" className={d('Group-cart-shoping')}>
+                  <Link to="/Cart" className={d('Group-cart-shoping')}>
                     <FontAwesomeIcon icon={faCartShopping} />
-                    <span className={d('Group-cart-count')}>0</span>
+                    <span className={d('Group-cart-count')}>{cartCount}</span>
                   </Link>
                 </li>
                 <li className={d('Group-user ')}>
@@ -87,11 +120,19 @@ function Header() {
 
                     <div className={d('user-option')}>
                       <div className="arrow-up"></div>
-                      {/* <Link to="/Login">Đăng nhập</Link> */}
-                      {/* <Link to="/Register">Đăng ký</Link> */}
-                      <Link to="./Account">Tài khoản</Link>
-                      <Link to="./Login">Đăng xuất</Link>
-                      <Link to="./Admin/Home">Đăng nhập admin</Link>
+                      {userId ? (
+                        <>
+                          <Link to="/Account">{userName}</Link>
+                          <Link to="/Login" onClick={handleLogout}>
+                            Đăng xuất
+                          </Link>
+                        </>
+                      ) : (
+                        <>
+                          <Link to="/Login">Đăng nhập</Link>
+                          <Link to="/Register">Đăng ký</Link>
+                        </>
+                      )}
                     </div>
                   </Link>
                 </li>

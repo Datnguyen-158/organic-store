@@ -1,11 +1,51 @@
 import { Link } from 'react-router-dom'
 import classNames from 'classnames/bind'
-// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import '@fortawesome/fontawesome-free/css/all.min.css'
 import styles from './login.scss'
+// import axios from 'axios'
+import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import authUser from '../../../api/authUser'
 
 const d = classNames.bind(styles)
 function Login() {
+  const navigate = useNavigate()
+  const [user_email, setEmail] = useState()
+  const [user_password, setPassword] = useState()
+  const [error, setError] = useState('')
+  function HandleLogin(e) {
+    e.preventDefault()
+    // const data = {
+    //   user_email,
+    //   user_password,
+    // }
+    authUser
+      .login(user_email, user_password)
+      .then((response) => {
+        localStorage.setItem('token', response.token)
+        console.log(response)
+        localStorage.setItem('user_name', response.user.user_name)
+
+        localStorage.setItem('user_id', response.user.user_id)
+
+        HandleCheckRole(response.user.user_role)
+        // window.location.reload()
+      })
+      .catch((error) => {
+        setError('Mật khẩu hoặc email không đúng!')
+        console.error(
+          'Có lỗi khi đăng nhập ' + error + '-' + error.response.data.message
+        )
+      })
+  }
+  function HandleCheckRole(role) {
+    if (role == 0) {
+      navigate('/')
+    } else {
+      navigate('/Admin/Home')
+    }
+  }
+
   return (
     <div className={d('form_login')}>
       <section className={d('bread_crumb')}>
@@ -45,8 +85,9 @@ function Login() {
                         <input
                           type="email"
                           placeholder="Nhập địa chỉ email"
+                          onChange={(e) => setEmail(e.target.value)}
                         ></input>
-                        <span>Email sai định dạng</span>
+                        {/* <span>Email sai định dạng</span> */}
                       </fieldset>
                       <fieldset className={d('form_group')}>
                         <label for="">
@@ -55,8 +96,9 @@ function Login() {
                         <input
                           type="password"
                           placeholder="Nhập mật khẩu của bạn"
+                          onChange={(e) => setPassword(e.target.value)}
                         ></input>
-                        <span>Không được để trống</span>
+                        {/* <span>Không được để trống</span> */}
                       </fieldset>
                       <p style={{ textAlign: 'left' }}>
                         <Link to="./" title="Quên mật khẩu?">
@@ -64,7 +106,13 @@ function Login() {
                         </Link>
                       </p>
                       <div className={d('btn-login')}>
-                        <button type="submit" value="đăng nhập">
+                        <button
+                          onClick={(e) => {
+                            HandleLogin(e)
+                          }}
+                          type="submit"
+                          value="đăng nhập"
+                        >
                           Đăng nhập
                         </button>
                       </div>

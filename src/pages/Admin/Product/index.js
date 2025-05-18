@@ -1,12 +1,48 @@
 import styles from './product.scss'
 import classNames from 'classnames/bind'
 import { Link } from 'react-router-dom'
+import React, { useState, useEffect } from 'react'
+import ProductForm from './ProductForm'
+import productApi from '../../../api/productApi'
 const d = classNames.bind(styles)
 function Product() {
+  const [isFormVisible, setIsFormVisible] = useState(false)
+  const [product, setProduct] = useState(null)
+  const [selectedId, setSelectedId] = useState(null)
+  const openForm = (id = null) => {
+    setSelectedId(id)
+    setIsFormVisible(true)
+  }
+
+  // Đóng form
+  const closeForm = () => {
+    setIsFormVisible(false)
+  }
+  const get_all = async () => {
+    try {
+      const response = await productApi.getProduct()
+      setProduct(response.data)
+      console.log(response.data)
+    } catch (error) {
+      console.error('Có lỗi khi lấy danh sách :', error)
+    }
+  }
+  const deleteproduct = async (id) => {
+    try {
+      await productApi.deleteProductsById(id)
+      get_all()
+    } catch (error) {
+      console.error('Có lỗi khi xóa sản phẩm:', error)
+    }
+  }
+  useEffect(() => {
+    get_all()
+  }, [])
+
   return (
     <div className="account-admin">
       <div className="add-account">
-        <button className="btn btn-success" type="">
+        <button className="btn btn-success" type="" onClick={() => openForm()}>
           Thêm
         </button>
       </div>
@@ -17,33 +53,60 @@ function Product() {
               <th>Tên sản phẩm</th>
               <th> Danh mục</th>
               <th> Ảnh sản phẩm</th>
-              <th>Giá</th>
+              <th>Giá gốc</th>
+              <th>Giá giảm</th>
               <th>Số lượng</th>
-              <th>Mô tả</th>
               <th>Hành động</th>
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>
-                Dung dịch làm sạch và tẩy trang công nghệ Micellar Bioderma
-                Sebium H2O - 500ml
-              </td>
-              <td> Tẩy trang</td>
-              <td> hihi</td>
-              <td> 50.000đ</td>
-              <td>120kg</td>
-              <td> Dung dịch,...</td>
-              <td>
-                <button className="btn btn-warning " style={{ margin: '5px' }}>
-                  Sửa
-                </button>
-                <button className="btn btn-danger">Xóa</button>
-              </td>
-            </tr>
+            {Array.isArray(product) &&
+              product?.map((item, index) => (
+                <tr key={index}>
+                  <td>{item.product_name}</td>
+                  <td>{item.category_id}</td>
+                  <td>
+                    <img
+                      src={`http://127.0.0.1:8000/${item.product_img}`}
+                      alt={item.product_name}
+                      style={{ width: '100px' }}
+                    />
+                  </td>
+                  <td>{item.product_price}</td>
+                  <td>{item.product_dsc}</td>
+                  <td>{item.product_quantity}</td>
+
+                  <td>
+                    <button
+                      className="btn btn-warning "
+                      style={{ margin: '5px' }}
+                      onClick={() => openForm(item.product_id)}
+                    >
+                      Sửa
+                    </button>
+                    <button
+                      className="btn btn-danger"
+                      onClick={() => deleteproduct(item.product_id)}
+                    >
+                      Xóa
+                    </button>
+                  </td>
+                </tr>
+              ))}
           </tbody>
         </table>
       </div>
+      {isFormVisible && (
+        <>
+          <div className="overLay"></div> {/* Lớp overlay */}
+          <ProductForm
+            id={selectedId}
+            onUpdate={get_all}
+            onClose={closeForm}
+          />{' '}
+          {/* Form */}
+        </>
+      )}
     </div>
   )
 }

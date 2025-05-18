@@ -1,19 +1,64 @@
 import classNames from 'classnames/bind'
 import styles from './address.scss'
 import { Link } from 'react-router-dom'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import AddAddress from './AddAddress'
+import receiverApi from '../../../api/receiverApi'
 const d = classNames.bind(styles)
 
 function Address() {
+  const userId = localStorage.getItem('user_id')
   const [isFormVisible, setIsFormVisible] = useState(false)
-  const openForm = () => {
+  const [selectedId, setSelectedId] = useState(null)
+  const [addresses, setAddresses] = useState([])
+  const openForm = (Id = null) => {
+    setSelectedId(Id)
     setIsFormVisible(true)
   }
 
   // Đóng form
   const closeForm = () => {
     setIsFormVisible(false)
+  }
+
+  const fetchAddresses = () => {
+    receiverApi
+      .getByIdUserReceiver(userId)
+      .then((response) => {
+        setAddresses(response.data)
+      })
+      .catch((error) => {
+        console.error('Lỗi khi gọi API:', error)
+      })
+  }
+  useEffect(() => {
+    fetchAddresses()
+  }, [])
+
+  function handlesetdefault(addressid) {
+    receiverApi
+      .setDefaultAddress(userId, addressid)
+      .then(() => {
+        console.log('Đã cập nhật địa chỉ mặc định thành công')
+        return receiverApi.getByIdUserReceiver(userId)
+      })
+      .then((response) => {
+        setAddresses(response.data)
+      })
+      .catch((error) => {
+        console.error('Lỗi khi cập nhật địa chỉ mặc định:', error)
+      })
+  }
+  function handledelete(addressid) {
+    receiverApi
+      .deleteAddress(addressid)
+      .then(() => {
+        console.log('Đã xóa địa chỉ thành công')
+        return fetchAddresses()
+      })
+      .catch((error) => {
+        console.error('Lỗi khi xóa', error)
+      })
   }
   return (
     <div>
@@ -47,7 +92,7 @@ function Address() {
                   </li>
 
                   <li>
-                    <Link to="../Login">Đổi mật khẩu</Link>
+                    <Link to="../Changepass">Đổi mật khẩu</Link>
                   </li>
                   <li>
                     <Link to="../Address">Sổ địa chỉ(2)</Link>
@@ -76,42 +121,90 @@ function Address() {
                   )}
                 </div>
               </p>
-              <div className="col-12 d-flex address-info">
-                <div className="col-9 ">
-                  <div
-                    className={d('address-group')}
-                    style={{ textAlign: 'left' }}
-                  >
-                    <p>
-                      <strong>Họ tên: </strong> Khắc Đạt
+              {addresses.map((item, index) => (
+                <div className="col-12 d-flex  address-info">
+                  <div key={index} className="col-9   ">
+                    <div
+                      className={d('address-group')}
+                      style={{ textAlign: 'left' }}
+                    >
+                      <p>
+                        <strong>Họ tên: </strong> {item.receiver_name}
+                        {item.receiver_type === 1 && (
+                          <span
+                            style={{
+                              color: '#27AE60',
+                              fontSize: '13px',
+                              marginLeft: '9px',
+                            }}
+                          >
+                            Địa chỉ mặc định
+                          </span>
+                        )}
+                      </p>
+
+                      <p>
+                        <strong>Địa chỉ:</strong>
+                        {item.receiver_desc},{item.receiver_commune},{' '}
+                        {item.receiver_district}, {item.receiver_city}, Hà Nội,
+                        Vietnam
+                      </p>
+                      <p>
+                        <strong>Số điện thoại:</strong>
+                        {item.receiver_phone},
+                      </p>
+                      <p></p>
+                    </div>
+                  </div>
+                  <div className="col-3 change-address">
+                    {item.receiver_type === 0 && (
+                      <p
+                        style={{
+                          color: '#27AE60',
+                          fontSize1: '1.2rem',
+                          cursor: 'pointer',
+                        }}
+                        onClick={() => handlesetdefault(item.receiver_id)}
+                      >
+                        Đặt làm địa chỉ mặc định
+                      </p>
+                    )}
+                    <p
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        flexDirection: 'column',
+                      }}
+                    >
+                      <button onClick={() => openForm(item.receiver_id)}>
+                        Chỉnh sửa địa chỉ
+                      </button>
+                      <span
+                        style={{
+                          color: 'red',
+                          cursor: 'pointer',
+                        }}
+                        onClick={() => handledelete(item.receiver_id)}
+                      >
+                        Xóa
+                      </span>
+                      {isFormVisible && (
+                        <>
+                          <div className="overlay"></div> {/* Lớp overlay */}
+                          {isFormVisible && (
+                            <AddAddress
+                              id={selectedId}
+                              onClose={closeForm}
+                              onSuccess={fetchAddresses}
+                            />
+                          )}
+                        </>
+                      )}
                     </p>
-                    <p>
-                      <strong>Địa chỉ:</strong> Phường Phú Lương, Quận Hà Đông,
-                      Hà Nội, Vietnam
-                    </p>
-                    <p>
-                      <strong>Số điện thoại:</strong> 0333158971
-                    </p>
-                    <p>
-                      <strong>Công ty:</strong> ahihi
-                    </p>
-                    <p></p>
                   </div>
                 </div>
-                <div className="col-3 change-address">
-                  <p>
-                    <button onClick={() => openForm()}>
-                      Chỉnh sửa địa chỉ
-                    </button>
-                    {isFormVisible && (
-                      <>
-                        <div className="overlay"></div> {/* Lớp overlay */}
-                        {isFormVisible && <AddAddress onClose={closeForm} />}
-                      </>
-                    )}
-                  </p>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>

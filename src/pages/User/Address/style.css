@@ -33,6 +33,9 @@
   height: 35px;
   border: 1px solid #888;
 }
+.form-popup h6 {
+  font-size: 1.6rem;
+}
 .overlay {
   position: fixed;
   top: 0;

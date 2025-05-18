@@ -3,9 +3,7 @@ import ReactDOM from 'react-dom/client'
 import './index.css'
 import App from './App'
 import 'bootstrap/dist/css/bootstrap.min.css'
-import { useEffect } from 'react'
-
-import { useState } from 'react'
+import { CartProvider } from './context/CartContext'
 import '@fortawesome/fontawesome-free/css/all.min.css'
 import reportWebVitals from './reportWebVitals'
 import GlobalStyle from './componients/GlobalStyle'
@@ -14,7 +12,9 @@ const root = ReactDOM.createRoot(document.getElementById('root'))
 root.render(
   <GlobalStyle>
     <React.StrictMode>
-      <App />
+      <CartProvider>
+        <App />
+      </CartProvider>
     </React.StrictMode>
   </GlobalStyle>
 )

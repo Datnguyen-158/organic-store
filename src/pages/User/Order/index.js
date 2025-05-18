@@ -1,10 +1,31 @@
 import classNames from 'classnames/bind'
 import styles from './order.scss'
 import { Link } from 'react-router-dom'
-
+import { useState } from 'react'
+import receiverApi from '../../../api/receiverApi'
+import { useEffect } from 'react'
 const d = classNames.bind(styles)
 
 function Order() {
+  // đơn hàng
+  const [orders, setOrders] = useState([])
+  const userId = localStorage.getItem('user_id')
+  const getOrder = () => {
+    receiverApi
+      .getShowOrderbyId(userId)
+      .then((response) => {
+        setOrders(response.data)
+        console.log('reponse:r', response.data)
+      })
+      .catch((error) => {
+        console.error(
+          'Có lỗi khi lấy đơn hàng ' + error + '-' + error.response.data.message
+        )
+      })
+  }
+  useEffect(() => {
+    getOrder()
+  }, [userId])
   return (
     <div>
       <section className={d('bread_crumb')}>
@@ -42,10 +63,10 @@ function Order() {
                   </li>
 
                   <li>
-                    <Link>Đổi mật khẩu</Link>
+                    <Link to="../ChangePass">Đổi mật khẩu</Link>
                   </li>
                   <li>
-                    <Link>Sổ địa chỉ(2)</Link>
+                    <Link to="../Address">Sổ địa chỉ(2)</Link>
                   </li>
                 </span>
               </div>
@@ -61,21 +82,23 @@ function Order() {
                       <tr>
                         <th>Đơn hàng</th>
                         <th>Ngày</th>
-                        <th>Địa chỉ</th>
-                        <th>Giá trị đơn hàng</th>
-                        <th>TT đơn hàng</th>
-                        <th>TT vận chuyển</th>
+                        {/* <th>Địa chỉ</th> */}
+                        <th>Trạng thái đơn hàng</th>
+                        {/* <th>TT đơn hàng</th>
+                        <th>TT vận chuyển</th> */}
                       </tr>
                     </thead>
                     <tbody>
-                      <tr>
-                        <td>Táo lê</td>
-                        <td>15/08/2025</td>
-                        <td>Hà Đông, Hà Nội</td>
-                        <td>200.000đ</td>
-                        <td>250.000đ</td>
-                        <td>50.000đ</td>
-                      </tr>
+                      {orders.map((order, index) => (
+                        <tr key={index}>
+                          <td>{order.order_id}</td>
+                          <td>{order.order_date}</td>
+                          {/* <td>Hà Đông, Hà Nội</td> */}
+                          <td>{order.order_status}</td>
+                          {/* <td>250.000đ</td>
+                          <td>50.000đ</td> */}
+                        </tr>
+                      ))}
                     </tbody>
                   </table>
                 </div>
