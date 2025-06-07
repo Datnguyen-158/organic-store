@@ -81,7 +81,9 @@ function Address() {
                 <h1>Trang tài khoản</h1>
                 <p style={{ marginBottom: '30px' }}>
                   Xin chào,
-                  <span style={{ fontWeight: '600' }}> Khắc Đạt</span>
+                  <span style={{ fontWeight: '600' }}>
+                    {addresses[0]?.receiver_name}
+                  </span>
                 </p>
                 <span>
                   <li>
@@ -93,9 +95,6 @@ function Address() {
 
                   <li>
                     <Link to="../Changepass">Đổi mật khẩu</Link>
-                  </li>
-                  <li>
-                    <Link to="../Address">Sổ địa chỉ(2)</Link>
                   </li>
                 </span>
               </div>

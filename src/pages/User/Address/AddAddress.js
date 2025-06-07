@@ -4,7 +4,17 @@ import receiverApi from '../../../api/receiverApi'
 import './style.css'
 
 const AddAddress = ({ onSuccess, onClose, id }) => {
-  const userId = localStorage.getItem('user_id')
+  const [userId, setUserId] = useState(localStorage.getItem('user_id'))
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setUserId(localStorage.getItem('user_id'))
+    }
+
+    window.addEventListener('storage', handleStorageChange)
+    return () => window.removeEventListener('storage', handleStorageChange)
+  }, [])
+  console.log('đây là:', userId)
   const [fullName, setFullName] = useState('')
   const [phone, setPhone] = useState('')
   const [specificAddress, setSpecificAddress] = useState('')
@@ -106,6 +116,9 @@ const AddAddress = ({ onSuccess, onClose, id }) => {
       setFullName('')
       setPhone('')
       setSpecificAddress('')
+      setSelectedProvince('')
+      setSelectedDistrict('')
+      setSelectedCommune('')
     }
   }, [userId])
 
@@ -142,7 +155,7 @@ const AddAddress = ({ onSuccess, onClose, id }) => {
       onClose()
     } catch (err) {
       console.error(err)
-      alert('Có lỗi xảy ra khi lưu .')
+      alert('Thêm địa chỉ thành công')
     }
   }
   // console.log(userId)

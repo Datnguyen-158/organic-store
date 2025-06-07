@@ -12,7 +12,13 @@ class Order extends Model
     protected $table = 'orders';
 
     protected $primaryKey = 'order_id';
-
+    protected $fillable = [
+        'user_id',
+        'TotalPrice',
+        'order_status','order_date',
+        'receiver_id',
+        // ... bất kỳ trường nào bạn đang truyền vào Order::create()
+    ];
     public $timestamps = false;
 
     public function user()

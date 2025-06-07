@@ -37,7 +37,7 @@ class OrderDetailController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(OrderDetailsRequest $request)
+    public function store(Request $request)
     {
         $get_OrderDetail = new OrderDetail();
        
@@ -45,8 +45,7 @@ class OrderDetailController extends Controller
             $get_OrderDetail->order_id = $request->order_id;
             $get_OrderDetail->product_id = $request->product_id;
             $get_OrderDetail->orderDetail_quantity = $request->orderDetail_quantity;
-            $get_OrderDetail->orderDetail_total = $request->orderDetail_total;
-            $get_OrderDetail->orderDetail_date = $request->order_date;
+            $get_OrderDetail->product_weights_id = $request->product_weights_id;
 
             $get_OrderDetail->save();
 
@@ -68,15 +67,25 @@ class OrderDetailController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(OrderDetail $orderDetail)
+    public function OrderItemByIdOrder($OrderID)
     {
-        return response()->json(
-            [
-                "message" => "lấy dữ liệu thành công",
-                "data" => $orderDetail,
-            ]
-        );
+        //
+        $order = OrderDetail::with('productWeight', 'product')
+        ->where('order_id', $OrderID)
+        ->get();
+        if (!$order) {
+            return response()->json([
+                "message" => "Không tìm thấy danh mục",
+                "data" => null
+            ], 404);
+        }
+    
+        return response()->json([
+            "message" => "Hiển thị danh mục thành công",
+            "data" => $order,
+        ]);
     }
+
 
     /**
      * Update the specified resource in storage.

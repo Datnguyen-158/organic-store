@@ -4,11 +4,12 @@ import '@fortawesome/fontawesome-free/css/all.min.css'
 import styles from './login.scss'
 // import axios from 'axios'
 import React, { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import authUser from '../../../api/authUser'
 
 const d = classNames.bind(styles)
 function Login() {
+  const location = useLocation()
   const navigate = useNavigate()
   const [user_email, setEmail] = useState()
   const [user_password, setPassword] = useState()
@@ -65,11 +66,17 @@ function Login() {
             <div className="col-lg-7 col-md-12">
               <div className={d('page_login ')}>
                 <div className={d('page_login_list')}>
-                  <li className={d('act')}>
-                    <Link to="./">Đăng Nhập</Link>
+                  <li
+                    className={location.pathname === '/Login' ? d('act') : ''}
+                  >
+                    <Link to="/Login">Đăng Nhập</Link>
                   </li>
-                  <li>
-                    <Link to="./">Đăng Ký</Link>
+                  <li
+                    className={
+                      location.pathname === '/Register' ? d('act') : ''
+                    }
+                  >
+                    <Link to="/Register">Đăng Ký</Link>
                   </li>
                 </div>
                 <div className={d('page_login_content')}>

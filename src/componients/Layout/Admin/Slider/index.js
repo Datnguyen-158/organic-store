@@ -8,6 +8,7 @@ import {
   faLayerGroup,
   faCartShopping,
   faLocationDot,
+  faNewspaper,
 } from '@fortawesome/free-solid-svg-icons'
 import { faDocker } from '@fortawesome/free-brands-svg-icons'
 const d = classNames.bind(styles)
@@ -42,6 +43,10 @@ function Slider() {
         <li>
           <FontAwesomeIcon icon={faLocationDot} />
           <Link to="/Admin/Shipping">Địa chỉ nhận hàng</Link>
+        </li>{' '}
+        <li>
+          <FontAwesomeIcon icon={faNewspaper} />
+          <Link to="/Admin/News">Tin tức</Link>
         </li>{' '}
         <li>
           <FontAwesomeIcon icon={faCartShopping} />

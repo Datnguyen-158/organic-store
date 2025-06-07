@@ -15,16 +15,27 @@ import {
   faCartShopping,
   faUserTie,
 } from '@fortawesome/free-solid-svg-icons'
+import { Value } from 'sass'
 
 const d = classNames.bind(styles)
 function Header() {
   const userId = localStorage.getItem('user_id')
   const userName = localStorage.getItem('user_name')
+  const [searchTerm, setSearchTerm] = useState('')
   const navigate = useNavigate()
   console.log(userId)
+
   const handleLogout = () => {
     localStorage.clear()
     navigate('/Login')
+  }
+
+  const handleSearch = (e) => {
+    e.preventDefault()
+
+    if (searchTerm.trim() !== '') {
+      navigate(`/Product?search=${encodeURIComponent(searchTerm)}`)
+    }
   }
   const { cartCount, setCartCount } = useContext(CartContext)
   const [category, setCategory] = useState([])
@@ -79,13 +90,15 @@ function Header() {
           </div>
           <div className={d('col-5 row header-right  align-items-center')}>
             <div className="col-1"></div>
-            <form className={d('search col-7')}>
+            <form onSubmit={handleSearch} className={d('search col-7')}>
               <input
                 placeholder="Bạn muốn mua gì"
                 type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 className={d('search-auto')}
-              ></input>
-              <button className=" ">
+              />
+              <button type="submit" className=" ">
                 <FontAwesomeIcon icon={faMagnifyingGlass} />
               </button>
             </form>

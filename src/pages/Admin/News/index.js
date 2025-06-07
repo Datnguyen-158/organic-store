@@ -3,11 +3,11 @@ import classNames from 'classnames/bind'
 import { Link } from 'react-router-dom'
 import React, { useState, useEffect } from 'react'
 import ProductForm from './ProductForm'
-import receiverApi from '../../../api/receiverApi'
+import newsApi from '../../../api/newsApi'
 const d = classNames.bind(styles)
-function Shipping() {
+function News() {
   const [isFormVisible, setIsFormVisible] = useState(false)
-  const [receiver, setReceiver] = useState(null)
+  const [news, setNews] = useState(null)
   const [selectedId, setSelectedId] = useState(null)
   const openForm = (id = null) => {
     setSelectedId(id)
@@ -20,16 +20,16 @@ function Shipping() {
   }
   const get_all = async () => {
     try {
-      const response = await receiverApi.getAddAddress()
-      setReceiver(response.data)
-      // console.log(response.data)
+      const response = await newsApi.getNews()
+      setNews(response.data)
+      console.log(response.data)
     } catch (error) {
       console.error('Có lỗi khi lấy danh sách :', error)
     }
   }
   const deleteproduct = async (id) => {
     try {
-      await receiverApi.deleteAddress(id)
+      await newsApi.deleteNews(id)
       get_all()
     } catch (error) {
       console.error('Có lỗi khi xóa sản phẩm:', error)
@@ -50,42 +50,44 @@ function Shipping() {
         <table>
           <thead>
             <tr>
-              <th>Id khách hàng</th>
-              <th>Tên khách hàng</th>
-              <th>SĐT</th>
-              <th>Id tài khoản</th>
-              <th>Thành phố</th>
-              <th>Quận</th>
-              <th>Phường</th>
-              <th>Mô tả</th>
+              <th>Id tin tức</th>
+              <th>Tiêu đề</th>
+              <th>Nội dung</th>
+              <th>Ảnh tin tức</th>
               <th>Hành động</th>
             </tr>
           </thead>
           <tbody>
-            {Array.isArray(receiver) &&
-              receiver?.map((item, index) => (
+            {Array.isArray(news) &&
+              news?.map((item, index) => (
                 <tr key={index}>
-                  <td>{item.receiver_id}</td>
-                  <td>{item.receiver_name}</td>
-                  <td>{item.receiver_phone}</td>
-                  <td>{item.user_id}</td>
-                  <td>{item.receiver_city}</td>
-                  <td>{item.receiver_district}</td>
-                  <td>{item.receiver_commune}</td>
-                  <td>{item.receiver_desc}</td>
-                  <td>{item.receiver_type}</td>
+                  <td>{item.new_id}</td>
+                  <td>
+                    <div className="long-text">{item.new_title}</div>
+                  </td>
+
+                  <td>
+                    <div className="long-text">{item.new_content}</div>
+                  </td>
+                  <td>
+                    <img
+                      src={`http://127.0.0.1:8000/${item.new_img}`}
+                      alt=""
+                      style={{ width: '100px' }}
+                    />
+                  </td>
 
                   <td>
                     <button
                       className="btn btn-warning "
                       style={{ margin: '5px' }}
-                      onClick={() => openForm(item.receiver_id)}
+                      onClick={() => openForm(item.new_id)}
                     >
                       Sửa
                     </button>
                     <button
                       className="btn btn-danger"
-                      onClick={() => deleteproduct(item.receiver_id)}
+                      onClick={() => deleteproduct(item.new_id)}
                     >
                       Xóa
                     </button>
@@ -110,4 +112,4 @@ function Shipping() {
   )
 }
 
-export default Shipping
+export default News

@@ -4,9 +4,11 @@ import { useNavigate } from 'react-router-dom'
 import authUser from '../../../api/authUser'
 import styles from './register.scss'
 import React, { useState, useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 
 const d = classNames.bind(styles)
 function Register() {
+  const location = useLocation()
   const navigate = useNavigate()
   const [user_name, setName] = useState()
   const [user_email, setEmail] = useState()
@@ -53,10 +55,16 @@ function Register() {
             <div className="col-lg-7 col-md-12">
               <div className={d('page_login ')}>
                 <div className={d('page_login_list')}>
-                  <li className={d('act')}>
+                  <li
+                    className={location.pathname === '/Login' ? d('act') : ''}
+                  >
                     <Link to="/Login">Đăng Nhập</Link>
                   </li>
-                  <li>
+                  <li
+                    className={
+                      location.pathname === '/Register' ? d('act') : ''
+                    }
+                  >
                     <Link to="/Register">Đăng Ký</Link>
                   </li>
                 </div>

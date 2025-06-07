@@ -186,7 +186,7 @@ class UserController extends Controller
     }
        public function GetOrderByUser(User $user)
     {
-        $get_orders = $user->orders()->get();
+        $get_orders = $user->orders()->with('receiver')->get();
             return response()->json(
                 [
                     "message" => "đã get thành công",

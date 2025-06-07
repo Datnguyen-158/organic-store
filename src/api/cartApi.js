@@ -8,7 +8,7 @@ const cartApi = {
     return axiosClient.post('carts/add', data)
   },
   removetocart(id) {
-    return axiosClient.delete(`carts/remove/${id}`)
+    return axiosClient.delete(`cart/remove/${id}`)
   },
   updateQuantitytocart(cartId, quantity) {
     return axiosClient.put('carts/updatequantity', {

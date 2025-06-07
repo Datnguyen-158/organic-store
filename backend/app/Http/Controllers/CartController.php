@@ -41,10 +41,10 @@ public function index()
             'data' => $cartItems
         ]);
     }
-     public function removeFromCart($CartID)
+     public function removeFromCart($Cart_id)
     {
 
-        $deleted = Cart::where('cart_id',$CartID)->delete();
+        $deleted = Cart::where('cart_id',$Cart_id)->delete();
 
     if ($deleted) {
         return response()->json(['message' => 'Item removed from cart']);

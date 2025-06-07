@@ -4,7 +4,7 @@ import '@fortawesome/fontawesome-free/css/all.min.css'
 import styles from './Home.scss'
 import categoryApi from '../../../api/categoryApi'
 import productApi from '../../../api/productApi'
-import newApi from '../../../api/newsApi'
+import newsApi from '../../../api/newsApi'
 import React, { useState, useEffect } from 'react'
 const d = classNames.bind(styles)
 function Home() {
@@ -39,7 +39,7 @@ function Home() {
   }, [])
   const [news, setNews] = useState([])
   useEffect(() => {
-    newApi
+    newsApi
       .getNews()
       .then((response) => {
         setNews(response.data)
@@ -423,7 +423,12 @@ function Home() {
                     </Link>
                     <div className={d('content_block')}>
                       <h3>
-                        <Link to="./">{item.new_title}</Link>
+                        <Link
+                          onClick={() => scrollToTop()}
+                          to={`/NewsDetails?new=${item.new_id}`}
+                        >
+                          {item.new_title}
+                        </Link>
                       </h3>
                       <div className={d('time-post d-flex flex-column')}>
                         <span>Tác giả Nguyễn Khắc Đạt |</span>

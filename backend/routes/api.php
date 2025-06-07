@@ -31,6 +31,12 @@ Route::get('/product-weights', [ProductWeightController::class, 'index']);
 Route::get('/product-weights/{productID}', [ProductWeightController::class, 'show']);
 Route::get('/product-weights/{productId}/products', [ProductWeightController::class, 'showWeightByProduct']);
 Route::put('carts/updatequantity', [CartController::class, 'updateQuantity']);
+Route::apiResource('receiver',ReceiverController::class);
+Route::apiResource('news',NewsController::class);
+Route::post('order/place',[OrderController::class,'store']);
+Route::delete('cart/remove/{id}', [CartController::class, 'removeFromCart']);
+Route::put('/orders/{id}/status', [OrderController::class, 'updateStatus']);
+Route::apiResource('orders',OrderController::class)->only('index','show','destroy');
 // Route::patch('/products/{product}', [ProductController::class, 'update']);
 // Route::apiResource('products',ProductController::class)->only('store','update','delete');
 // Route::apiResource('users',UserController::class)->only('store');
@@ -47,6 +53,7 @@ Route::put('carts/updatequantity', [CartController::class, 'updateQuantity']);
 Route::get('users/{user_id}', [AuthController::class,'ShowProfile']);
 Route::get('users/{user}/carts', [UserController::class,'HandleCart']);
 Route::get('users/{user}/receiver',[UserController::class,'ShowReceivers']);
+Route::get('users/{id}/receiver',[UserController::class,'getByUser']);
 Route::get('users/{user}/receiver/type',[UserController::class,'showByType']);
 Route::get('users/{user}/orders',[UserController::class,'GetOrderByUser']);
 Route::post('change-password', [UserController::class, 'changePassword']);
@@ -56,24 +63,27 @@ Route::get('users/{user}/receiver/{receiver_id}/status',[ReceiverController::cla
 
 Route::post('carts/add', [CartController::class, 'addCart']);
 Route::get('carts/{user_id}', [CartController::class, 'getCart']);
-Route::delete('carts/remove/{id}', [CartController::class, 'removeFromCart']);
+// Route::delete('carts/remove/{id}', [CartController::class, 'removeFromCart']);
 
-Route::apiResource('orders',OrderController::class)->only('index','show','store','destroy');
+
+
 Route::get('orders/{order}/receiver',[OrderController::class,'ShowReceiverByOrder']);
 Route::get('orders/{order}/orderDetails',[OrderController::class,'GetOrderDetailByOrder']);
 Route::get('orders/{order}/status',[OrderController::class,'SetStatusOrder']);  
-Route::apiResource('receiver',ReceiverController::class)->only('index','show','destroy');
-Route::apiResource('receiver',ReceiverController::class)->only('store','update');
+
 Route::apiResource('orderDetails',OrderDetailController::class)->only('index','show','store'); 
 
     //  --nd đăng nhập xog thì ms đăng xuất đc
 Route::get('user/logout',[AuthController::class,'logout']);
+Route::get('orderItem/{id}',[OrderDetailController::class,'OrderItemByIdOrder']);
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //Admin
    Route::middleware('admin')->group(function(){
-Route::apiResource('news',NewsController::class)->only('store','update','destroy');
+
+    Route::get('statistics', [OrderController::class, 'getAll']);
+Route::post('statistics/filter', [OrderController::class, 'filter']);
 Route::apiResource('orderDetails',OrderDetailController::class)->only('update','destroy');                                            
 Route::apiResource('orders',OrderController::class)->only('update');
 Route::post('productdetail', [ProductDetailController::class, 'store']);

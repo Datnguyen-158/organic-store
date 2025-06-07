@@ -1,15 +1,18 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Http\Requests\OrderRequest;
 use App\Http\Requests\UpdateOrderRequest;
 use Illuminate\Support\Facades\DB;
-
+use App\Models\ProductWeight;
+use App\Models\Product;
+use Illuminate\Support\Facades\Log;
 class OrderController extends Controller
 {
+
     /**
      * Display a listing of the resource.
      */
@@ -17,7 +20,7 @@ class OrderController extends Controller
     {
         // $Order = Order::join('receiver','receiver.receiver_id','=','orders.receiver_id')
         //                         ->get();
-$Order= Order::all();
+        $Order = Order::with('receiver')->get();
         if(count($Order)>0){
             return response()->json(
                 [
@@ -37,32 +40,89 @@ $Order= Order::all();
     /**
      * Store a newly created resource in storage.
      */
-    public function store(OrderRequest $request)
+    public function store(Request $request)
     {
-         $get_Order = new Order();
-       
-        if($get_Order){
-            $get_Order->order_date = $request->order_date;
-            $get_Order->order_status = $request->order_status;
-            $get_Order->order_totalmoney = $request->order_totalmoney;
-            $get_Order->user_id = $request->user_id;
-            $get_Order->receiver_id = $request->receiver_id;
-            $get_Order->save();
-
-            return response()->json(
-                [
-                    "message" => "đã thêm dữ liệu thành công",
-                    "data" => $get_Order,
-                ]
-            );
-        }else{
-            return response()->json(
-                [
-                    "message" => "thêm dữ liệu thất bại",
-                ]
-            );
+        DB::listen(function ($query) {
+            Log::info('SQL: ' . $query->sql);
+            Log::info('Bindings: ', $query->bindings);
+        });
+    
+        DB::beginTransaction();
+    
+        try {
+            $order = Order::create([
+                'user_id' => $request->user_id,
+                'receiver_id' => $request->receiver_id,
+                'order_date' => $request->order_date,
+                'order_status' => '0',
+                'TotalPrice' => $request->TotalPrice,
+            ]);
+    
+            foreach ($request->items as $item) {
+                // Tạo chi tiết đơn hàng
+                $order->orderDetails()->create([
+                    'product_id' => $item['product_id'],
+                    'product_weights_id' => $item['product_weights_id'],
+                    'orderDetail_quantity' => $item['Quantity'],
+                ]);
+    
+                // Lấy thông tin trọng lượng từ bảng product_weights
+                $productWeight = ProductWeight::where('product_weights_id', $item['product_weights_id'])->first();
+    
+                if ($productWeight) {
+                    // Chuyển đổi weight từ chuỗi (ví dụ "500g") thành số nguyên
+                    $weight = (int) filter_var($productWeight->weight, FILTER_SANITIZE_NUMBER_INT);
+    
+                    // Tính toán số lượng cần trừ trong bảng product
+                    $quantityToSubtract = $weight * $item['Quantity'];
+    
+                    // Lấy thông tin sản phẩm từ bảng products
+                    $product = Product::where('product_id', $item['product_id'])->first();
+    
+                    if ($product) {
+                        if ($product->product_quantity < $quantityToSubtract) {
+                            throw new \Exception("Không đủ hàng cho sản phẩm ID: {$item['product_id']}");
+                        }
+    
+                        // Cập nhật lại số lượng trong bảng products
+                        $product->product_quantity -= $quantityToSubtract;
+                        $product->save();
+                    }
+                }
+            }
+    
+            DB::commit();
+    
+            return response()->json(['message' => 'Đặt hàng thành công.'], 201);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Order Error: ' . $e->getMessage());
+    
+            return response()->json(['message' => 'Lỗi khi đặt hàng.', 'error' => $e->getMessage()], 500);
         }
     }
+    
+    
+public function updateStatus(Request $request, $id)
+{
+    // Validate dữ liệu đầu vào
+    $request->validate([
+        'order_status' => 'required|in:1,2', // 1: Đã giao, 2: Đã hủy
+    ]);
+
+    // Tìm đơn hàng theo ID
+    $order = Order::findOrFail($id);
+
+    // Cập nhật trạng thái
+    $order->order_status = $request->input('order_status');
+    $order->save();
+
+    return response()->json([
+        'message' => 'Cập nhật trạng thái thành công',
+        'status' => $order->order_status
+    ]);
+}
+
 
     /**
      * Display the specified resource.
@@ -216,4 +276,63 @@ $Order= Order::all();
                 ]
             );
     }
+
+    public function getAll()
+{
+    $allOrders = Order::all();
+    $completedOrders = Order::where('order_status', '1')->get();
+
+    $totalRevenue = $completedOrders->sum('TotalPrice');
+    $totalOrderCount = $allOrders->count();
+    $completedOrderCount = $completedOrders->count();
+
+    // Gom theo ngày
+    $chartData = $completedOrders->groupBy(function ($order) {
+        return Carbon::parse($order->order_date)->format('Y-m-d');
+    })->map(function ($group, $date) {
+        return [
+            'date' => $date,
+            'revenue' => $group->sum('TotalPrice'),
+            'orders' => $group->count(),
+        ];
+    })->values();
+
+    return response()->json([
+        'totalRevenue' => $totalRevenue,
+        'totalOrderCount' => $totalOrderCount,
+        'completedOrderCount' => $completedOrderCount,
+        'chartData' => $chartData,
+    ]);
+}
+
+public function filter(Request $request)
+{
+    $from = Carbon::parse($request->input('from'))->startOfDay();
+    $to = Carbon::parse($request->input('to'))->endOfDay();
+
+    $orders = Order::where('order_status', '1')
+                   ->whereBetween('order_date', [$from, $to])
+                   ->get();
+                   $allOrders = Order::whereBetween('order_date', [$from, $to])->get();
+    $totalRevenue = $orders->sum('TotalPrice');
+    $orderCount = $orders->count();
+    $totalOrderCount = $allOrders->count();
+
+    $chartData = $orders->groupBy(function ($order) {
+        return Carbon::parse($order->order_date)->format('Y-m-d');
+    })->map(function ($group, $date) {
+        return [
+            'date' => $date,
+            'revenue' => $group->sum('TotalPrice'),
+            'orders' => $group->count(),
+        ];
+    })->values();
+
+    return response()->json([
+        'totalRevenue' => $totalRevenue,
+        'totalOrderCount' => $totalOrderCount,
+        'completedOrderCount' => $orderCount,
+        'chartData' => $chartData,
+    ]);
+}
 }

@@ -51,6 +51,7 @@
 }
 .swiper-slide-active {
   border-color: #3ba66b;
+  box-shadow: none;
 }
 .swiper-slider {
   margin: 15px 0;
@@ -262,6 +263,7 @@
 }
 .tab-content > .active {
   display: block;
+  box-shadow: none;
 }
 .tab-content > .tab-panes {
   display: none;
@@ -309,6 +311,7 @@
 .swatch-element.active {
   border: 1px solid green;
   background-color: #f0fff0;
+  box-shadow: none;
 }
 .nd-product-tab {
   .nav-tabs {
@@ -326,6 +329,7 @@
         background-color: #ffc107;
         border-color: #ffc107;
         color: white;
+        box-shadow: none;
       }
     }
   }
@@ -339,6 +343,8 @@
 
       &.active {
         display: block;
+        box-shadow: none;
+        border-left: none;
       }
     }
   }

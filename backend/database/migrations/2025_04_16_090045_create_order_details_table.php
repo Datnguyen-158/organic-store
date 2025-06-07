@@ -16,8 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('product_id');
             $table->unsignedBigInteger('order_id');
             $table->integer('orderDetail_quantity');
-            $table->integer('orderDetail_total');
-            $table->timestamp('orderDetail_date')->useCurrent()->useCurrentOnUpdate();
+            $table->integer('product_weights_id');
             $table->timestamps();
 
             // Foreign keys

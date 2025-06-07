@@ -12,6 +12,7 @@ function Account() {
   const [phone, setPhone] = useState()
   const [email, setEmail] = useState()
   const [user, setUser] = useState([])
+  const [receiver, setReceiver] = useState([])
   const [order, setOrders] = useState([])
   const [selectedSection, setSelectedSection] = useState('account')
 
@@ -19,8 +20,8 @@ function Account() {
     authUser
       .get_user_id(userId)
       .then((response) => {
-        setUser(response.data[0])
-        // console.log('Response data:', response.data)
+        setUser(response.data)
+        console.log('Response data:', response.data)
       })
       .catch((error) => {
         console.error(
@@ -28,23 +29,26 @@ function Account() {
         )
       })
   }
-  // const getOrder = () => {
-  //   receiverApi
-  //     .getShowOrderbyId(userId)
-  //     .then((response) => {
-  //       setOrders(response.data)
-  //       // console.log('reponse:r', response.data)
-  //     })
-  //     .catch((error) => {
-  //       console.error(
-  //         'Có lỗi khi lấy đơn hàng ' + error + '-' + error.response.data.message
-  //       )
-  //     })
-  // }
+  const getReceiver = () => {
+    receiverApi
+      .getByUser(userId)
+      .then((response) => {
+        setReceiver(response.data)
+        console.log('Response data:', response.data)
+      })
+      .catch((error) => {
+        console.error(
+          'Có lỗi khi lấy khách hàng ' +
+            error +
+            '-' +
+            error.response.data.message
+        )
+      })
+  }
+
   useEffect(() => {
     getUserName()
-    // getCustomer()
-    // getOrder()
+    getReceiver()
   }, [userId])
   return (
     <div>
@@ -67,7 +71,10 @@ function Account() {
                 <h1>Trang tài khoản</h1>
                 <p style={{ marginBottom: '30px' }}>
                   Xin chào,
-                  <span style={{ fontWeight: '600' }}> {user.user_name}</span>
+                  <span style={{ fontWeight: '600' }}>
+                    {' '}
+                    {receiver[0]?.receiver_name}
+                  </span>
                 </p>
                 <span>
                   <li>
@@ -81,7 +88,8 @@ function Account() {
                   </li>
                   <li>
                     <Link to="/Address">
-                      Sổ địa chỉ({user?.receiver?.length || 0})
+                      Sổ địa chỉ (
+                      {Array.isArray(receiver) ? receiver.length : 0})
                     </Link>
                   </li>
                   <li>
@@ -95,20 +103,18 @@ function Account() {
 
               <div className={d('my-account')}>
                 <p>
-                  <strong>Họ tên:</strong> {user.user_name}
+                  <strong>Họ tên:</strong> {receiver[0]?.receiver_name}
+                </p>
+                {/* <p>
+                  <strong>Email: </strong> {user?.user_email}
+                </p> */}
+                <p>
+                  <strong>Điện thoại:</strong> {receiver[0]?.receiver_phone}
                 </p>
                 <p>
-                  <strong>Email: </strong> {user.user_email}
-                </p>
-                <p>
-                  <strong>Điện thoại:</strong>{' '}
-                  {user?.receiver?.[0]?.receiver_phone}
-                </p>
-                <p>
-                  <strong>Địa chỉ</strong> {user?.receiver?.[0]?.receiver_desc},
-                  {user?.receiver?.[0]?.receiver_commune},
-                  {user?.receiver?.[0]?.receiver_district},
-                  {user?.receiver?.[0]?.receiver_city},
+                  <strong>Địa chỉ</strong> {receiver[0]?.receiver_desc},
+                  {receiver[0]?.receiver_commune},
+                  {receiver[0]?.receiver_district},{receiver[0]?.receiver_city},
                 </p>
               </div>
             </div>

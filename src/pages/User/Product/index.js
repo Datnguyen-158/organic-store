@@ -13,6 +13,7 @@ function Product() {
   const [categories, setCategories] = useState([])
   const [categoryID, setCategoryID] = useState('')
   const [products, setProducts] = useState([])
+  const searchTerm = searchParams.get('search') || ''
   useEffect(() => {
     categoryApi
       .getCategories()
@@ -31,19 +32,31 @@ function Product() {
         if (category_id) {
           res = await productApi.getShowProduct(category_id)
           const categorybyID = await categoryApi.getCategorybyID(category_id)
-          // console.log(categorybyID)
           setCategoryID(categorybyID.data.category_name)
         } else {
           res = await productApi.getProduct()
           setCategoryID('Tất cả sản phẩm')
         }
-        setProducts(res.data)
+
+        let allProducts = res.data
+
+        // Nếu có searchTerm, lọc thủ công ở FE
+        if (searchTerm) {
+          allProducts = allProducts.filter((product) =>
+            product.product_name
+              .toLowerCase()
+              .includes(searchTerm.toLowerCase())
+          )
+        }
+
+        setProducts(allProducts)
       } catch (err) {
         console.error('Lỗi lấy sản phẩm:', err)
       }
     }
+
     fetchProducts()
-  }, [category_id])
+  }, [category_id, searchTerm])
 
   //////////////////////////////////////////////Selected price////////////////////////////////////////////////////
   const [selectedPrices, setSelectedPrices] = useState([])
@@ -167,32 +180,41 @@ function Product() {
           </aside>
           <section className={d('main_container col-9')}>
             <div className="container">
-              <div className="row">
-                {products?.map((item) => (
-                  <li className={d('col-3')} key={item.product_id}>
-                    <Link to={`/ProductDetail?product=${item.product_id}`}>
-                      <div className="product-grids">
-                        <div className={d('sale-labels')}>
-                          <span>{item.product_discount}%</span>
-                        </div>
-                        <div className={d('product-transition')}>
-                          <img src={item.product_img} alt={item.product_name} />
-                        </div>
+              {products.length === 0 ? (
+                <p style={{ color: 'red', fontWeight: 'bold' }}>
+                  Không tìm thấy sản phẩm nào.
+                </p>
+              ) : (
+                <div className="row">
+                  {products?.map((item) => (
+                    <li className={d('col-3')} key={item.product_id}>
+                      <Link to={`/ProductDetail?product=${item.product_id}`}>
+                        <div className="product-grids">
+                          <div className={d('sale-labels')}>
+                            <span>{item.product_discount}%</span>
+                          </div>
+                          <div className={d('product-transition')}>
+                            <img
+                              src={item.product_img}
+                              alt={item.product_name}
+                            />
+                          </div>
 
-                        <h4 className="grid-title">{item.product_name}</h4>
-                        <div className={d('price-items')}>
-                          <span className={d('price')}>
-                            {item.product_dsc}đ
-                          </span>
-                          <span className={d('old-price')}>
-                            {item.product_price}
-                          </span>
+                          <h4 className="grid-title">{item.product_name}</h4>
+                          <div className={d('price-items')}>
+                            <span className={d('price')}>
+                              {item.product_dsc}đ
+                            </span>
+                            <span className={d('old-price')}>
+                              {item.product_price}
+                            </span>
+                          </div>
                         </div>
-                      </div>
-                    </Link>
-                  </li>
-                ))}
-              </div>
+                      </Link>
+                    </li>
+                  ))}
+                </div>
+              )}
 
               <div className="row  ">
                 <div className="col-12">

@@ -11,6 +11,7 @@ import ProductDetail from '../pages/User/ProductDetail'
 import Register from '../pages/User/Register'
 import Contact from '../pages/User/Contact'
 import News from '../pages/User/News'
+import NewsDetails from '../pages/User/NewsDetails'
 import Account from '../pages/User/Account'
 import ChangePass from '../pages/User/ChangePass'
 import Address from '../pages/User/Address'
@@ -23,6 +24,7 @@ import AdOrder from '../pages/Admin/Order'
 import AdProduct from '../pages/Admin/Product'
 import Shipping from '../pages/Admin/Shipping'
 import Category from '../pages/Admin/Category'
+import AdNews from '../pages/Admin/News'
 
 const publicRoutes = [
   { path: '/', component: Home },
@@ -35,6 +37,7 @@ const publicRoutes = [
   { path: '/Order', component: Order },
   { path: '/Login', component: Login },
   { path: '/News', component: News },
+  { path: '/NewsDetails', component: NewsDetails },
   { path: '/Thanks', component: Thanks },
   { path: '/Contact', component: Contact },
   { path: '/Checkout', component: Checkout },
@@ -47,6 +50,7 @@ const publicRoutes = [
   { path: '/Admin/Product', component: AdProduct, layout: Admin },
   { path: '/Admin/Order', component: AdOrder, layout: Admin },
   { path: '/Admin/Shipping', component: Shipping, layout: Admin },
+  { path: '/Admin/News', component: AdNews, layout: Admin },
   { path: '/Admin/AdAccount', component: AdAccount, layout: Admin },
 ]
 const privateRoutes = []

@@ -59,10 +59,10 @@ function ChangePass() {
             <div className="col-3">
               <div className={d('block-account')}>
                 <h1>Trang tài khoản</h1>
-                <p style={{ marginBottom: '30px' }}>
+                {/* <p style={{ marginBottom: '30px' }}>
                   Xin chào,
-                  <span style={{ fontWeight: '600' }}> Khắc Đạt</span>
-                </p>
+                  <span style={{ fontWeight: '600' }}></span>
+                </p> */}
                 <span>
                   <li>
                     <Link to="../Account">Thông tin tài khoản</Link>
@@ -75,7 +75,7 @@ function ChangePass() {
                     <Link to="../ChangePass">Đổi mật khẩu</Link>
                   </li>
                   <li>
-                    <Link to="../Address">Sổ địa chỉ(2)</Link>
+                    <Link to="../Address">Sổ địa chỉ</Link>
                   </li>
                 </span>
               </div>

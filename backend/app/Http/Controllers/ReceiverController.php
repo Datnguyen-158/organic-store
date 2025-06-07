@@ -93,17 +93,23 @@ if(!$receiver){
                 ]
             );
     }
- public function destroy(Receiver $receiver)
+    public function destroy(string $id)
     {
-        $receiver->delete();
+        //
+        $feedback = Receiver::find($id);
+        
 
-            return response()->json(
-                [
-                    "message" => "đã xóa thành công",
-                    "data" => $receiver,
-                ]
-            );
-    }  
+    if (!$feedback) {
+        return response()->json([
+            "message" => "Không tìm thấy danh mục cần xóa"
+        ], 404);
+    }
+        $feedback->delete();
+
+        return response()->json([
+            "message" => "đã xóa danh mục thành công"
+        ]);
+    }
      public function HandleStatus(User $user,$receiver_id)
     {
         //tìm kiếm th nào đang mặc định và chuyển đổi nó
@@ -151,6 +157,15 @@ if(!$receiver){
                 'message' => 'No default address found.'
             ], 404);
         }
+    }
+    public function getByUser($UserID){
+        $Receiver = Receiver::where('user_id', $UserID)->first();
+
+        // Nếu có truyền ID danh mục cha thì lọc theo, ngược lại lấy tất cả
+        return response()->json([
+            "message" => "Đã lấy khách hàng",
+            "data" => $Receiver,
+        ]);
     }
    
    

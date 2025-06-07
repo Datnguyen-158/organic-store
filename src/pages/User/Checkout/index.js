@@ -3,20 +3,24 @@ import React, { useState, useEffect } from 'react'
 import './checkout.css'
 import { useNavigate } from 'react-router-dom'
 import { Link } from 'react-router-dom'
+import dayjs from 'dayjs'
 import { useLocation } from 'react-router-dom'
 import receiverApi from '../../../api/receiverApi'
 import productApi from '../../../api/productApi'
-
+import orderApi from '../../../api/order'
+import { useContext } from 'react'
+import { CartContext } from '../../../context/CartContext'
+import cartApi from '../../../api/cartApi'
+import AddAddress from '../Address/AddAddress'
 function Checkout() {
+  const { fetchCartCount } = useContext(CartContext)
+  const [receiver, setReceiver] = useState([])
   const [selectedPayment, setSelectedPayment] = useState('')
+  const [showAddAddressForm, setShowAddAddressForm] = useState(false)
   const handlePaymentChange = (event) => {
     setSelectedPayment(event.target.value) // Cập nhật trạng thái khi chọn thanh toán
   }
   const navigate = useNavigate()
-
-  const handleToThanks = () => {
-    navigate('/Thanks') // Chuyển đến trang Pay
-  }
 
   // const { fetchCartCount } = useContext(CartContext)
   //Lấy danh sách sản phẩm được chọn từ location.state (được truyền từ trang trước).
@@ -26,7 +30,6 @@ function Checkout() {
   const userId = localStorage.getItem('user_id')
   //Khởi tạo các state: địa chỉ, thông tin khách hàng và sản phẩm.
 
-  const [receiver, setReceiver] = useState([])
   const [product, setProduct] = useState([])
   //tính tổng số sản phẩm được chọn (số lượng dòng trong mảng selectedProducts)
   const totalItems = selectedProducts.length
@@ -43,11 +46,13 @@ function Checkout() {
       let res
       res = await receiverApi.getShowReceivers(userId)
       setReceiver(res.data)
-      console.log(res.data)
     } catch (err) {
       console.error('Lỗi lấy sản phẩm:', err)
+      // Nếu không có địa chỉ nào, có thể set receiver rỗng để hiển thị thông báo
+      setReceiver([])
     }
   }
+
   const fetchProducts = async () => {
     const product_ids = selectedProducts.map((item) => item.product_id)
     // console.log('a', selectedProducts)
@@ -77,42 +82,167 @@ function Checkout() {
     fetchProducts()
   }, [userId])
 
+  // Hàm xử lý khi thêm địa chỉ thành công
+  const handleAddAddressSuccess = async () => {
+    await fetchReceiver() // Gọi lại API để cập nhật danh sách địa chỉ
+    setShowAddAddressForm(false) // Đóng form sau khi thêm thành công
+    // Tìm địa chỉ vừa được thêm và đặt làm mặc định nếu đây là địa chỉ đầu tiên
+    if (receiver.length === 0) {
+      // Nếu ban đầu không có địa chỉ nào
+      const updatedReceivers = await receiverApi.getShowReceivers(userId)
+      const newAddress = updatedReceivers.data.find(
+        (item) => item.receiver_type === 0
+      ) // Tìm địa chỉ mới thêm (mặc định là type 0)
+      if (newAddress) {
+        await receiverApi.setDefaultAddress(userId, newAddress.receiver_id)
+        await fetchReceiver() // Cập nhật lại lần nữa để hiển thị địa chỉ mặc định
+      }
+    }
+  }
+  const closeAddAddressForm = () => {
+    setShowAddAddressForm(false)
+  }
+
+  const payload = {
+    receiver_id: receiver.find((item) => item.receiver_type === 1)?.receiver_id,
+    // receiver_id: receiver[0]?.receiver_id,
+    user_id: receiver[0]?.user_id,
+    TotalPrice: total,
+    OrderDate: dayjs().format('YYYY-MM-DD HH:mm:ss'),
+    items: selectedProducts.map((item) => ({
+      Quantity: item.Quantity,
+      product_weights_id: item?.product_weights_id,
+      product_id: item?.product_id,
+    })),
+  }
+  console.log(payload)
+
+  // const handleToThanks = async () => {
+  //   try {
+  //     const res = await orderApi.addOrder(payload)
+  //     console.log('Đặt hàng thành công:', payload)
+
+  //     // xóa sản phẩm sau khi đặt hàng thành công
+
+  //     await Promise.all(
+  //       selectedProducts.map((item) => {
+  //         return item.cart_id ? cartApi.removetocart(item.cart_id) : null
+  //       })
+  //     )
+  //     fetchCartCount() // Cập nhật lại số lượng giỏ hàng
+  //     // Điều hướng sang trang cảm ơn
+  //     navigate('/Thanks')
+  //   } catch (err) {
+  //     if (err.response?.data?.errors) {
+  //       console.log('Lỗi validate:', err.response.data.errors)
+  //       alert(JSON.stringify(err.response.data.errors))
+  //     } else {
+  //       console.error('Lỗi không xác định:', err)
+  //     }
+  //   }
+  // }
+  // console.log('receiver', receiver)
+  const handleToThanks = async () => {
+    // Kiểm tra xem có địa chỉ mặc định hay không
+    if (!payload.receiver_id) {
+      alert('Vui lòng thêm địa chỉ nhận hàng mặc định trước khi đặt hàng.')
+      return
+    }
+
+    try {
+      const res = await orderApi.addOrder(payload)
+      console.log('Đặt hàng thành công:', payload)
+
+      await Promise.all(
+        selectedProducts.map((item) => {
+          return item.cart_id ? cartApi.removetocart(item.cart_id) : null
+        })
+      )
+      fetchCartCount()
+      navigate('/Thanks')
+    } catch (err) {
+      if (err.response?.data?.errors) {
+        console.log('Lỗi validate:', err.response.data.errors)
+        alert(JSON.stringify(err.response.data.errors))
+      } else {
+        console.error('Lỗi không xác định:', err)
+      }
+    }
+  }
+
+  const defaultReceiver = receiver.find((item) => item.receiver_type === 1)
+
   return (
     <>
       <div className="container ">
         <div className="row mt-5">
-          {receiver
-            .filter((item) => item.receiver_type === 1)
-            .map((receiver) => (
-              <div key={receiver.receiver_id} className="col-md-4 checkout">
-                <h2>Thông tin nhận hàng</h2>
-                <input
-                  type="text"
-                  placeholder="Họ tên"
-                  value={receiver.receiver_name}
-                />
-                <input
-                  type="text"
-                  placeholder="Số điện thoại "
-                  value={receiver.receiver_phone}
-                />
-                <input
-                  type="text"
-                  placeholder="Địa chỉ"
-                  value={receiver.receiver_desc}
-                />
-                <select value={receiver.receiver_city}>
-                  <option>{receiver.receiver_city}</option>
-                </select>
-                <select value={receiver.receiver_district}>
-                  <option>{receiver.receiver_district}</option>
-                </select>
-                <select value={receiver.receiver_commune}>
-                  <option>{receiver.receiver_commune}</option>
-                </select>
-                <textarea placeholder="Ghi chú"></textarea>
+          {defaultReceiver ? ( // Kiểm tra nếu có địa chỉ mặc định
+            // .filter((item) => item.receiver_type === 1)
+            // .map((receiver) => (
+            <div
+              key={defaultReceiver.receiver_id}
+              className="col-md-4 checkout"
+            >
+              <h2>Thông tin nhận hàng</h2>
+              <input
+                type="text"
+                placeholder="Họ tên"
+                value={defaultReceiver.receiver_name}
+              />
+              <input
+                type="text"
+                placeholder="Số điện thoại "
+                value={defaultReceiver.receiver_phone}
+              />
+              <input
+                type="text"
+                placeholder="Địa chỉ"
+                value={defaultReceiver.receiver_desc}
+              />
+              <select value={defaultReceiver.receiver_city}>
+                <option>{defaultReceiver.receiver_city}</option>
+              </select>
+              <select value={defaultReceiver.receiver_district}>
+                <option>{defaultReceiver.receiver_district}</option>
+              </select>
+              <select value={defaultReceiver.receiver_commune}>
+                <option>{defaultReceiver.receiver_commune}</option>
+              </select>
+              <textarea placeholder="Ghi chú"></textarea>
+            </div>
+          ) : (
+            <div className="col-md-4 checkout">
+              <h2>Thông tin nhận hàng</h2>
+              <div
+                style={{
+                  border: '1px dashed #ccc',
+                  padding: '20px',
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  minHeight: '280px', // Đảm bảo chiều cao đủ lớn
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+                onClick={() => setShowAddAddressForm(true)}
+              >
+                <h3>Thêm địa chỉ</h3>
+                <p>Vui lòng thêm địa chỉ nhận hàng để tiếp tục!</p>
               </div>
-            ))}
+            </div>
+          )}
+          {/* Form thêm địa chỉ, chỉ hiển thị khi showAddAddressForm là true */}
+          {showAddAddressForm && (
+            <>
+              <div className="overlay"></div> {/* Lớp overlay */}
+              <AddAddress
+                onClose={closeAddAddressForm}
+                onSuccess={handleAddAddressSuccess}
+              />
+            </>
+          )}
+          {/* // Nếu không có địa chỉ mặc định, hiển thị thông báo "Thêm địa chỉ */}
           <div className="col-md-4">
             <h2>Vận chuyển</h2>
             <div
@@ -155,7 +285,7 @@ function Checkout() {
               </div>
               {selectedPayment === 'cod' && (
                 <div className="text-center p-3 ">
-                  Chỉ áp dụng đơn hàng nhỏ hơn 3.000.000đ
+                  {/* Chỉ áp dụng đơn hàng nhỏ hơn 3.000.000đ */}
                 </div>
               )}
             </div>

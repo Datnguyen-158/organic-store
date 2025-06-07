@@ -28,15 +28,14 @@
 }
 .search input {
   width: 100%;
-  margin-bottom: 0;
   height: 46px;
   min-height: 46px;
   line-height: 46px;
   outline: none;
   padding: 0 50px 0 20px;
   border: none;
-  border-radius: 35px !important;
-  font-size: 14px;
+  border-radius: 35px;
+  font-size: 15px;
   color: #999ea1;
   background: #f3f3f3;
 }
@@ -48,7 +47,7 @@
   padding: 0;
   height: 46px;
   width: 46px;
-  font-size: 20px;
+  font-size: 16px;
   top: 0;
   border-radius: 50%;
   background-color: #ffb416;

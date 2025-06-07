@@ -1,0 +1,6 @@
+.long-text {
+  white-space: nowrap; /* Ngăn văn bản xuống dòng */
+  overflow: hidden; /* Ẩn phần vượt quá */
+  text-overflow: ellipsis; /* Hiển thị dấu ba chấm */
+  max-width: 200px; /* Điều chỉnh chiều rộng tối đa tùy ý */
+}

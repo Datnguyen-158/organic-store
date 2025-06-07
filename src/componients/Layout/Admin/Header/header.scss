@@ -30,3 +30,14 @@
 
   align-items: center;
 }
+
+.logout-option {
+  margin-top: 5px;
+  // padding: 8px;
+  background-color: #f9f9f9;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  text-align: center;
+  width: 100px;
+  cursor: pointer; /* Thêm hiệu ứng con trỏ khi di chuột qua */
+}

@@ -28,6 +28,9 @@ const receiverApi = {
   setDefaultAddress(userid, addressid) {
     return axiosClient.post(`/user/${userid}/setdefaultaddress/${addressid}`)
   },
+  getByUser(id) {
+    return axiosClient.get(`users/${id}/receiver`)
+  },
 }
 
 export default receiverApi

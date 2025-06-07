@@ -25,8 +25,9 @@ function Cart() {
         product_img: item.product.product_img,
         ProductPrice: item.product_weights.product_price,
         Quantity: item.cart_quantity,
-        Weight: item.product_weights.weight,
-        product: item.product, // để Checkout.js dùng được item.product.product_id
+        cart_id: item.cart_id,
+        product_weights_id: item.product_weights.product_weights_id,
+        product: item.product,
       }))
       navigate('/Checkout', { state: { selectedProducts } })
     } else {
@@ -39,6 +40,7 @@ function Cart() {
       let res
       res = await cartApi.getCart(userId)
       setCart(res.data)
+      console.log('Dữ liệu cart từ API:', res.data)
       const count = res.data.length
       setTotalItems(count)
     } catch (err) {
