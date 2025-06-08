@@ -102,18 +102,21 @@ function Checkout() {
   const closeAddAddressForm = () => {
     setShowAddAddressForm(false)
   }
-
+  const cartid = selectedProducts.map(item => item.cart_id).filter(Boolean);
+  console.log("cartIds:", cartid);
   const payload = {
     receiver_id: receiver.find((item) => item.receiver_type === 1)?.receiver_id,
     // receiver_id: receiver[0]?.receiver_id,
     user_id: receiver[0]?.user_id,
     TotalPrice: total,
-    OrderDate: dayjs().format('YYYY-MM-DD HH:mm:ss'),
+    order_date: dayjs().format('YYYY-MM-DD HH:mm:ss'),
     items: selectedProducts.map((item) => ({
       Quantity: item.Quantity,
       product_weights_id: item?.product_weights_id,
       product_id: item?.product_id,
     })),
+    payment_method: selectedPayment,
+
   }
   console.log(payload)
 
@@ -142,31 +145,55 @@ function Checkout() {
   //   }
   // }
   // console.log('receiver', receiver)
+
+
+  const handlePayMomo = async () => {
+    try {
+
+      const res = await orderApi.getpayUrl(total, cartid, payload);
+      console.log("payUrl:", res.payUrl);
+      window.location.href = res.payUrl; // Chuyển hướng đến trang thanh toán MoMo
+    } catch (error) {
+      console.error("Lỗi khi lấy payUrl:", error.response?.data || error.message);
+    }
+  };
+
+  const handlePaymentCod = async () => {
+    try {
+      const res = await orderApi.addOrder(payload);
+      console.log("Đặt hàng thành công:", payload);
+      // xóa sản phẩm sau khi đặt hàng thành công
+      await Promise.all(
+        selectedProducts.map(item =>
+          item.cart_id ? cartApi.removetocart(item.cart_id) : null
+        )
+      );
+      fetchCartCount(); // Cập nhật lại số lượng giỏ hàng
+      // Điều hướng sang trang cảm ơn
+      // sendEmailNotification();
+      navigate('/Thanks');
+    } catch (err) {
+      if (err.response?.data?.errors) {
+        console.log("Lỗi validate:", err.response.data.errors);
+        alert(JSON.stringify(err.response.data.errors));
+      } else {
+        console.error("Lỗi không xác định:", err);
+      }
+    }
+  }
+
   const handleToThanks = async () => {
     // Kiểm tra xem có địa chỉ mặc định hay không
     if (!payload.receiver_id) {
       alert('Vui lòng thêm địa chỉ nhận hàng mặc định trước khi đặt hàng.')
       return
     }
-
-    try {
-      const res = await orderApi.addOrder(payload)
-      console.log('Đặt hàng thành công:', payload)
-
-      await Promise.all(
-        selectedProducts.map((item) => {
-          return item.cart_id ? cartApi.removetocart(item.cart_id) : null
-        })
-      )
-      fetchCartCount()
-      navigate('/Thanks')
-    } catch (err) {
-      if (err.response?.data?.errors) {
-        console.log('Lỗi validate:', err.response.data.errors)
-        alert(JSON.stringify(err.response.data.errors))
-      } else {
-        console.error('Lỗi không xác định:', err)
-      }
+    if (selectedPayment === 'momo') {
+      await handlePayMomo();
+    } else if (selectedPayment === 'cod') {
+      await handlePaymentCod();
+    } else {
+      alert('Vui lòng chọn phương thức thanh toán');
     }
   }
 
@@ -264,6 +291,22 @@ function Checkout() {
                 borderRadius: '5px',
               }}
             >
+              {/* tt momo */}
+              <div className="d-flex align-items-center p-2" style={{ borderBottom: '1px solid #a4a4a4', borderTop: '1px solid #a4a4a4' }}>
+                <input
+                  type="radio"
+                  name="payment"
+                  value="momo"
+                  checked={selectedPayment === "momo"}
+                  onChange={handlePaymentChange}
+                />
+                <label ><img style={{ margin: '0 12px', width: '50px' }} src="https://developers.momo.vn/v3/vi/assets/images/icon-52bd5808cecdb1970e1aeec3c31a3ee1.png" />Thanh toán bằng ví Momo</label>
+              </div>
+              {selectedPayment === 'momo' && (
+                <div className="text-center p-3 ">
+                  Chỉ áp dụng đơn hàng nhỏ hơn 50.000.000đ
+                </div>
+              )}
               <div
                 className="d-flex align-items-center p-2 "
                 style={{ borderTop: '1px solid #a4a4a4' }}
@@ -283,11 +326,12 @@ function Checkout() {
                   Thanh toán khi nhận hàng
                 </label>
               </div>
-              {selectedPayment === 'cod' && (
+              {/* {selectedPayment === 'cod' && (
                 <div className="text-center p-3 ">
-                  {/* Chỉ áp dụng đơn hàng nhỏ hơn 3.000.000đ */}
+                  Chỉ áp dụng đơn hàng nhỏ hơn 3.000.000đ
                 </div>
-              )}
+              )} */}
+
             </div>
           </div>
           <div className="col-md-4">

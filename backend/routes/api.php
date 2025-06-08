@@ -37,6 +37,9 @@ Route::post('order/place',[OrderController::class,'store']);
 Route::delete('cart/remove/{id}', [CartController::class, 'removeFromCart']);
 Route::put('/orders/{id}/status', [OrderController::class, 'updateStatus']);
 Route::apiResource('orders',OrderController::class)->only('index','show','destroy');
+// thanh toán momo
+Route::post('/momo-payment', [OrderController::class, 'momo_payment']);
+    Route::post('/momo-ipn', [OrderController::class, 'momoIpn']);
 // Route::patch('/products/{product}', [ProductController::class, 'update']);
 // Route::apiResource('products',ProductController::class)->only('store','update','delete');
 // Route::apiResource('users',UserController::class)->only('store');

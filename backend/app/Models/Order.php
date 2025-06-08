@@ -33,4 +33,8 @@ class Order extends Model
     public function receiver(){
         return $this->hasOne(Receiver::class,'receiver_id','receiver_id');
     }
+    public function payment()
+{
+    return $this->hasOne(Payment::class,'order_id');
+}
 }

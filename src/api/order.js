@@ -19,6 +19,9 @@ const orderApi = {
       order_status: status,
     })
   },
+  getpayUrl(Total, cartid, payload) {
+    return axiosClient.post('momo-payment', { Total: Total, cartid: cartid, payload: payload });
+  }
 }
 
 export default orderApi
