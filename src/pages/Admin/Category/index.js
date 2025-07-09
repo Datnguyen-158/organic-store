@@ -7,6 +7,8 @@ import CategoryForm from './CategoryForm'
 const d = classNames.bind(styles)
 
 function Category() {
+  const [searchTerm, setSearchTerm] = useState('')
+  const [filtered, setFiltered] = useState([])
   const [isFormVisible, setIsFormVisible] = useState(false)
   const [category, setCategory] = useState(null)
   const [selectedId, setSelectedId] = useState(null)
@@ -24,7 +26,10 @@ function Category() {
     try {
       const response = await categoryApi.getCategories()
       setCategory(response.data)
-      console.log(response.data)
+
+      if (!searchTerm.trim()) {
+        setFiltered(response.data)
+      }
     } catch (error) {
       console.error('Có lỗi khi lấy danh sách :', error)
     }
@@ -41,13 +46,48 @@ function Category() {
   useEffect(() => {
     get_all_category()
   }, [])
+  const handleSearch = () => {
+    const lowerSearch = searchTerm.toLowerCase()
+    const result = category.filter((u) =>
+      u.category_name.toLowerCase().includes(lowerSearch)
+    )
+    setFiltered(result)
+  }
+
+  const handleShowAll = () => {
+    setSearchTerm('')
+    setFiltered(category)
+  }
 
   return (
     <div className="account-admin">
-      <div className="add-account">
+      <div className="add-account d-flex justify-content-between align-items-center mb-3">
         <button className="btn btn-success" type="" onClick={() => openForm()}>
           Thêm
         </button>
+        <div
+          className="d-flex align-items-center justify-content-between"
+          style={{ height: '50px' }}
+        >
+          <input
+            type="text"
+            style={{ fontSize: '14px' }}
+            className="form-control h-75"
+            placeholder="Tìm theo tên danh mục"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <button className="btn btn-primary" onClick={handleSearch}>
+            Tìm
+          </button>
+          <button
+            className="btn btn-secondary"
+            onClick={handleShowAll}
+            style={{ width: '200px' }}
+          >
+            Tất cả
+          </button>
+        </div>
       </div>
       <div className="table-add-account pt-4">
         <table>
@@ -59,7 +99,7 @@ function Category() {
             </tr>
           </thead>
           <tbody>
-            {category?.map((item) => (
+            {filtered?.map((item) => (
               <tr key={item.category_id}>
                 <td>{item.category_id}</td>
                 <td>{item.category_name}</td>

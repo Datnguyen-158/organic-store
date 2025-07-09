@@ -120,31 +120,7 @@ function Checkout() {
   }
   console.log(payload)
 
-  // const handleToThanks = async () => {
-  //   try {
-  //     const res = await orderApi.addOrder(payload)
-  //     console.log('Đặt hàng thành công:', payload)
 
-  //     // xóa sản phẩm sau khi đặt hàng thành công
-
-  //     await Promise.all(
-  //       selectedProducts.map((item) => {
-  //         return item.cart_id ? cartApi.removetocart(item.cart_id) : null
-  //       })
-  //     )
-  //     fetchCartCount() // Cập nhật lại số lượng giỏ hàng
-  //     // Điều hướng sang trang cảm ơn
-  //     navigate('/Thanks')
-  //   } catch (err) {
-  //     if (err.response?.data?.errors) {
-  //       console.log('Lỗi validate:', err.response.data.errors)
-  //       alert(JSON.stringify(err.response.data.errors))
-  //     } else {
-  //       console.error('Lỗi không xác định:', err)
-  //     }
-  //   }
-  // }
-  // console.log('receiver', receiver)
 
 
   const handlePayMomo = async () => {

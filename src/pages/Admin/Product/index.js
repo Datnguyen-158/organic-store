@@ -6,6 +6,8 @@ import ProductForm from './ProductForm'
 import productApi from '../../../api/productApi'
 const d = classNames.bind(styles)
 function Product() {
+  const [searchTerm, setSearchTerm] = useState('')
+  const [filtered, setFiltered] = useState([])
   const [isFormVisible, setIsFormVisible] = useState(false)
   const [product, setProduct] = useState(null)
   const [selectedId, setSelectedId] = useState(null)
@@ -22,7 +24,10 @@ function Product() {
     try {
       const response = await productApi.getProduct()
       setProduct(response.data)
-      console.log(response.data)
+      if (!searchTerm.trim()) {
+        setFiltered(response.data)
+        console.log(response.data)
+      }
     } catch (error) {
       console.error('Có lỗi khi lấy danh sách :', error)
     }
@@ -38,13 +43,47 @@ function Product() {
   useEffect(() => {
     get_all()
   }, [])
+  const handleSearch = () => {
+    const lowerSearch = searchTerm.toLowerCase()
+    const result = product.filter((u) =>
+      u.product_name.toLowerCase().includes(lowerSearch)
+    )
+    setFiltered(result)
+  }
 
+  const handleShowAll = () => {
+    setSearchTerm('')
+    setFiltered(product)
+  }
   return (
     <div className="account-admin">
-      <div className="add-account">
+      <div className="add-account d-flex justify-content-between align-items-center mb-3">
         <button className="btn btn-success" type="" onClick={() => openForm()}>
           Thêm
         </button>
+        <div
+          className="d-flex align-items-center justify-content-between"
+          style={{ height: '50px' }}
+        >
+          <input
+            type="text"
+            style={{ fontSize: '14px' }}
+            className="form-control h-75"
+            placeholder="Tìm theo tên sản phẩm"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <button className="btn btn-primary" onClick={handleSearch}>
+            Tìm
+          </button>
+          <button
+            className="btn btn-secondary"
+            onClick={handleShowAll}
+            style={{ width: '200px' }}
+          >
+            Tất cả
+          </button>
+        </div>
       </div>
       <div className="table-add-account pt-4">
         <table>
@@ -55,13 +94,13 @@ function Product() {
               <th> Ảnh sản phẩm</th>
               <th>Giá gốc</th>
               <th>Giá giảm</th>
-              <th>Số lượng</th>
+              <th>Số lượng (gram)</th>
               <th>Hành động</th>
             </tr>
           </thead>
           <tbody>
             {Array.isArray(product) &&
-              product?.map((item, index) => (
+              filtered?.map((item, index) => (
                 <tr key={index}>
                   <td>{item.product_name}</td>
                   <td>{item.category_id}</td>

@@ -18,7 +18,8 @@ use Illuminate\Support\Facades\Route;
 Route::apiResource('users',UserController::class)->only('index','show','update','destroy','store');
 Route::apiResource('categories',CategoryController::class)->only('index','show','store','update','destroy');
 Route::apiResource('products',ProductController::class)->only('index','show','store','update','destroy');
-
+Route::get('statistics', [OrderController::class, 'getAll']);
+Route::post('statistics/filter', [OrderController::class, 'filter']);
 Route::apiResource('news',NewsController::class)->only('index','show');
 Route::get('news',[NewsController::class,'index']);
 // Route::get('products',[ProductController::class, 'index']);
@@ -66,7 +67,6 @@ Route::get('users/{user}/receiver/{receiver_id}/status',[ReceiverController::cla
 
 Route::post('carts/add', [CartController::class, 'addCart']);
 Route::get('carts/{user_id}', [CartController::class, 'getCart']);
-// Route::delete('carts/remove/{id}', [CartController::class, 'removeFromCart']);
 
 
 
@@ -84,9 +84,9 @@ Route::get('orderItem/{id}',[OrderDetailController::class,'OrderItemByIdOrder'])
 //////////////////////////////////////////////////////////////////////////////////////////////
 //Admin
    Route::middleware('admin')->group(function(){
+    // \Log::info('Middleware admin:', ['user' => auth()->user()]);
+    // Route::get('statistics', [OrderController::class, 'getAll']);
 
-    Route::get('statistics', [OrderController::class, 'getAll']);
-Route::post('statistics/filter', [OrderController::class, 'filter']);
 Route::apiResource('orderDetails',OrderDetailController::class)->only('update','destroy');                                            
 Route::apiResource('orders',OrderController::class)->only('update');
 Route::post('productdetail', [ProductDetailController::class, 'store']);

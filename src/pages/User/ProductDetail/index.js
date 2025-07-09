@@ -27,14 +27,16 @@ function ProductDetail() {
   const product_id = searchParams.get('product')
   const [product, setProduct] = useState(null)
   const [products, setProducts] = useState([])
-  const [productdetails, setProductdetails] = useState(null)
+  // const [productdetails, setProductdetails] = useState(null)
+  const [productdetails, setProductdetails] = useState([])
   const [productDetail_content, setProductDetailContent] = useState('')
-
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [viewedProducts, setViewedProducts] = useState([])
   const [quantity, setQuantity] = useState(1)
   const [activeTab, setActiveTab] = useState('1')
   const { fetchCartCount } = useContext(CartContext)
   //Dong goi du lieu dieu huong sang trang thanh toan
+
   const handleBuyNow = () => {
     if (!Selectweight) {
       alert('Vui lòng chọn trọng lượng!')
@@ -94,12 +96,11 @@ function ProductDetail() {
           const defaultWeight = resWeight[0]
           setSelectWeight(defaultWeight)
           setPrice(defaultWeight.product_price)
-
+          setCurrentImageIndex(0)
           respon = await productApi.getShowProductDetailByIdProduct(product_id)
           setProductdetails(respon.data)
-          console.log(respon.data)
+          console.log('abc', respon)
           setProductDetailContent(respon.data?.[0]?.productDetail_content || '')
-          console.log(respon.data?.[0]?.productDetail_content)
 
           resp = await productApi.getProduct()
 
@@ -179,6 +180,22 @@ function ProductDetail() {
     if (quantity > 1) setQuantity((prev) => prev - 1)
   }
 
+  const handlePrevImage = () => {
+    if (!productdetails || productdetails.length === 0) return
+
+    setCurrentImageIndex((prevIndex) =>
+      prevIndex === 0 ? productdetails.length - 1 : prevIndex - 1
+    )
+  }
+
+  const handleNextImage = () => {
+    if (!productdetails || productdetails.length === 0) return
+
+    setCurrentImageIndex((prevIndex) =>
+      prevIndex === productdetails.length - 1 ? 0 : prevIndex + 1
+    )
+  }
+
   const tabs = [
     {
       id: '1',
@@ -205,6 +222,7 @@ Mục tiêu: Sản phẩm được giao đến tay khách hàng luôn đúng cam
   }
 
   const activeContent = tabs.find((tab) => tab.id === activeTab)?.content || ''
+
   return (
     <div>
       <section className={d('bread_crumb')}>
@@ -234,27 +252,56 @@ Mục tiêu: Sản phẩm được giao đến tay khách hàng luôn đúng cam
               <div className={d('product-image-block d-flex')}>
                 <div className={d('col-2')}>
                   <div className={d('swiper-wrapper')}>
-                    <FontAwesomeIcon icon={faArrowUp} />
+                    <button
+                      onClick={handlePrevImage}
+                      className="mb-2 btn btn-light"
+                    >
+                      <FontAwesomeIcon icon={faArrowUp} />
+                    </button>
+
                     {Array.isArray(productdetails) &&
-                      productdetails.map((details) => (
-                        <div className={d('swiper-slider swiper-slide-active')}>
+                      productdetails?.map((details, index) => (
+                        <div
+                          key={details.productDetail_id}
+                          className={d(
+                            `swiper-slider swiper-slide-active ${
+                              details.productDetail_id === currentImageIndex
+                                ? 'border border-primary'
+                                : ''
+                            }`
+                          )}
+                        >
                           <img
                             src={`http://localhost:8000/${details.productDetail_image}`}
                             alt=""
                           ></img>
                         </div>
                       ))}
-
-                    <FontAwesomeIcon icon={faArrowDown} />
+                    <button
+                      onClick={handleNextImage}
+                      className="mt-2 btn btn-light"
+                    >
+                      <FontAwesomeIcon icon={faArrowDown} />
+                    </button>
                   </div>
                 </div>
                 <div className={d('col-10')}>
                   <div className={d('swiper-container')}>
                     <Link to="./">
                       <img
-                        src={product.product_img}
+                        src={
+                          Array.isArray(productdetails) &&
+                          productdetails.length > 0
+                            ? `http://localhost:8000/${productdetails[currentImageIndex]?.productDetail_image}`
+                            : product?.product_img
+                        }
                         alt={product.product_name}
-                      ></img>
+                        style={{
+                          width: '100%',
+                          height: '500px',
+                          objectFit: 'contain',
+                        }}
+                      />
                     </Link>
                   </div>
                 </div>
@@ -282,8 +329,8 @@ Mục tiêu: Sản phẩm được giao đến tay khách hàng luôn đúng cam
               <div className={d('summary')}>
                 {Array.isArray(productdetails) &&
                   productdetails
-                    .slice(0, 1)
-                    .map((details) => <p>{details.productDetail_desc}</p>)}
+                    ?.slice(0, 1)
+                    ?.map((details) => <p>{details.productDetail_desc}</p>)}
               </div>
               <div className={d('form-product')}>
                 <form action="" method="post">
@@ -395,7 +442,7 @@ Mục tiêu: Sản phẩm được giao đến tay khách hàng luôn đúng cam
         </div>
         <div className={d('nd-product-tab')}>
           <ul className={d('nav-tabs')}>
-            {tabs.map((tab) => (
+            {tabs?.map((tab) => (
               <li
                 className={d('nav-item', { active: activeTab === tab.id })}
                 key={tab.id}
@@ -407,7 +454,7 @@ Mục tiêu: Sản phẩm được giao đến tay khách hàng luôn đúng cam
             ))}
           </ul>
           <div className={d('tab-content')}>
-            {tabs.map((tab) => (
+            {tabs?.map((tab) => (
               <div
                 key={tab.id}
                 className={d('tab-panes', { active: activeTab === tab.id })}
@@ -425,13 +472,13 @@ Mục tiêu: Sản phẩm được giao đến tay khách hàng luôn đúng cam
             <div className="container">
               <div className="row">
                 {products
-                  .filter(
+                  ?.filter(
                     (p) =>
                       p.category_id === product.category_id &&
                       p.product_id !== product.product_id
                   )
-                  .slice(0, 6)
-                  .map((pro) => (
+                  ?.slice(0, 6)
+                  ?.map((pro) => (
                     <li className={d('col-2')}>
                       <Link
                         to={`/ProductDetail?product=${pro.product_id}`}
@@ -471,7 +518,7 @@ Mục tiêu: Sản phẩm được giao đến tay khách hàng luôn đúng cam
           <section className={d('main_container col-12')}>
             <div className="container">
               <div className="row">
-                {viewedProducts.map((item, index) => (
+                {viewedProducts?.map((item, index) => (
                   <li className={d('col-2')} key={index}>
                     <Link to={`/ProductDetail?product=${item.product_id}`}>
                       <div className="product-grids">

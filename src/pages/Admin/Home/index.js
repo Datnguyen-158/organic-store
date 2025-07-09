@@ -60,7 +60,7 @@ function Home() {
         <div className="col-4 ">
           <div className="total-price-admin">
             <h6>Tổng tiền</h6>
-            <p>{data.totalRevenue.toLocaleString()}đ</p>
+            <p>{(data?.totalRevenue ?? 0).toLocaleString()}đ</p>
           </div>
         </div>
         <div className="col-4 ">

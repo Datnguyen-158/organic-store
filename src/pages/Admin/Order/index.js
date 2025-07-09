@@ -7,6 +7,8 @@ import orderApi from '../../../api/order'
 import { useEffect } from 'react'
 const d = classNames.bind(styles)
 function Order() {
+  const [searchTerm, setSearchTerm] = useState('')
+  const [filtered, setFiltered] = useState([])
   const [selectedOrder, setSelectedOrder] = useState(null)
   const [receiver, setReceiver] = useState([])
 
@@ -32,7 +34,9 @@ function Order() {
       .getAll()
       .then((response) => {
         setOrders(response.data)
-        console.log('reponse:r', response.data)
+        if (!searchTerm.trim()) {
+          setFiltered(response.data)
+        }
       })
       .catch((error) => {
         console.error(
@@ -64,10 +68,48 @@ function Order() {
   useEffect(() => {
     getOrder()
   }, [userId])
+
+  const handleSearch = () => {
+    const lowerSearch = searchTerm.toLowerCase()
+    const result = orders.filter((u) =>
+      u.order_id.toString().includes(searchTerm)
+    )
+    setFiltered(result)
+  }
+
+  const handleShowAll = () => {
+    setSearchTerm('')
+    setFiltered(orders)
+  }
+
   return (
     <div className="account-admin">
-      <div className="add-account">
+      <div className="add-account d-flex justify-content-between align-items-center mb-3">
         <h5 style={{ fontSize: '1.6rem' }}>Danh sách đơn hàng</h5>
+
+        <div
+          className="d-flex align-items-center justify-content-between"
+          style={{ height: '50px' }}
+        >
+          <input
+            type="text"
+            style={{ fontSize: '14px' }}
+            className="form-control h-75"
+            placeholder="Tìm theo id đơn hàng"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <button className="btn btn-primary" onClick={handleSearch}>
+            Tìm
+          </button>
+          <button
+            className="btn btn-secondary"
+            onClick={handleShowAll}
+            style={{ width: '200px' }}
+          >
+            Tất cả
+          </button>
+        </div>
       </div>
       <div className="table-add-account pt-4">
         <table>
@@ -83,7 +125,7 @@ function Order() {
             </tr>
           </thead>
           <tbody>
-            {orders.map((order, index) => (
+            {filtered.map((order, index) => (
               <tr key={index}>
                 <td>{order.order_id}</td>
                 <td>{order.order_date}</td>

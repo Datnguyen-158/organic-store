@@ -8,6 +8,8 @@ import AccountForm from './AccountForm'
 const d = classNames.bind(styles)
 
 function Account() {
+  const [searchTerm, setSearchTerm] = useState('')
+  const [filtered, setFiltered] = useState([])
   const [isFormVisible, setIsFormVisible] = useState(false)
   const [selectedUserId, setSelectedUserId] = useState(null)
   const openForm = (user_id = null) => {
@@ -26,7 +28,9 @@ function Account() {
     try {
       const response = await userApi.get_User()
       setUser(response.data)
-      // console.log(response.data)
+      if (!searchTerm.trim()) {
+        setFiltered(response.data)
+      }
     } catch (error) {
       console.error('Có lỗi khi lấy danh sách tài khoản:', error)
     }
@@ -43,12 +47,49 @@ function Account() {
     getAllUser()
   }, [])
 
+  const handleSearch = () => {
+    const lowerSearch = searchTerm.toLowerCase()
+    const result = user.filter(
+      (u) => u.user_name.toLowerCase().includes(lowerSearch)
+      // u.email.toLowerCase().includes(lowerSearch)
+    )
+    setFiltered(result)
+  }
+
+  const handleShowAll = () => {
+    setSearchTerm('')
+    setFiltered(user)
+  }
+
   return (
     <div className="account-admin">
-      <div className="add-account">
+      <div className="add-account d-flex justify-content-between align-items-center mb-3">
         <button className="btn btn-success" type="" onClick={() => openForm()}>
           Thêm
         </button>
+        <div
+          className="d-flex align-items-center justify-content-between"
+          style={{ height: '50px' }}
+        >
+          <input
+            type="text"
+            style={{ fontSize: '14px' }}
+            className="form-control h-75"
+            placeholder="Tìm theo tên hoặc email"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <button className="btn btn-primary" onClick={handleSearch}>
+            Tìm
+          </button>
+          <button
+            className="btn btn-secondary"
+            onClick={handleShowAll}
+            style={{ width: '200px' }}
+          >
+            Tất cả
+          </button>
+        </div>
       </div>
       <div className="table-add-account pt-4">
         <table>
@@ -62,7 +103,7 @@ function Account() {
             </tr>
           </thead>
           <tbody>
-            {user?.map((item) => (
+            {filtered?.map((item) => (
               <tr key={item.user_id}>
                 <td>{item.user_id}</td>
                 <td>{item.user_name}</td>
